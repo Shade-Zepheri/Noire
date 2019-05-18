@@ -1,0 +1,10 @@
+Package: com.shade.noire
+Name: Noire
+Depends: mobilesubstrate
+Architecture: iphoneos-arm
+Description: Personal dark mode
+Maintainer: Shade Zepheri
+Author: Shade Zepheri
+Section: Tweaks
+Version: 0.1-11+debug
+Installed-Size: 72
