@@ -3,7 +3,7 @@ Name: Noire
 Depends: mobilesubstrate
 Version: 0.1
 Architecture: iphoneos-arm
-Description: Personal dark mode
-Maintainer: Shade Zepheri
-Author: Shade Zepheri
+Description: Free iOS 12 Night Mode
+Maintainer: Shade Zepheri <ziroalpha@gmail.com>
+Author: Shade Zepheri <ziroalpha@gmail.com>
 Section: Tweaks
