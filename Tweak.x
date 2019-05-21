@@ -1,8 +1,9 @@
-#import <UIKit/UIKit.h>
+#import "NRESettings.h"
 #import <SpringBoard/SBDockView+Private.h>
 #import <SpringBoard/SBWallpaperEffectView+Private.h>
 #import <Widgets/WGShortLookStyleButton.h>
 #import <Widgets/WGWidgetPlatterView.h>
+#import <HBLog.h>
 
 #pragma mark - Dock
 
@@ -11,11 +12,26 @@
 - (instancetype)initWithDockListView:(UIView *)dockListView forSnapshot:(BOOL)snapshot {
     self = %orig;
     if (self) {
+        NRESettings *settings = NRESettings.sharedSettings;
+        [settings addObserver:self];
+
+        NSInteger style = settings.enabled ? 14 : 12;
         SBWallpaperEffectView *effectView = [self valueForKey:@"_backgroundView"];
-        [effectView setStyle:14];
+        [effectView setStyle:style];
     }
 
     return self;
+}
+
+%new
+- (void)settings:(NRESettings *)settings changedValueForKeyPath:(NSString *)keyPath {
+    if (![keyPath isEqualToString:@"enabled"]) {
+        return;
+    }
+
+    NSInteger style = settings.enabled ? 14 : 12;
+    SBWallpaperEffectView *effectView = [self valueForKey:@"_backgroundView"];
+    [effectView setStyle:style];
 }
 
 %end
@@ -50,35 +66,91 @@
 
 %end
 
-// Could be simplified to 1 hook, but this result looks better
 %hook WGShortLookStyleButton
 %property (retain, nonatomic) MTMaterialView *overlayView;
+
+- (instancetype)init {
+    self = %orig;
+    if (self) {
+        NRESettings *settings = NRESettings.sharedSettings;
+        [settings addObserver:self];
+    }
+
+    return self;
+}
 
 - (void)layoutSubviews {
     %orig;
 
-    self.overlayView.frame = self.bounds;
+    if (self.overlayView) {
+        self.overlayView.frame = self.bounds;
+    }
 }
 
 - (void)_configureBackgroundViewIfNecessary {
     %orig;
 
-    MTMaterialView *backgroundView = [self valueForKey:@"_backgroundView"];
-    // [backgroundView transitionToRecipe:MTMaterialRecipeNotificationsDark options:MTMaterialOptionsBlur | MTMaterialOptionsBaseOverlay weighting:backgroundView.weighting];
-    [backgroundView transitionToRecipe:MTMaterialRecipeNotificationsDark options:MTMaterialOptionsBlur weighting:backgroundView.weighting];
-
-    if (self.overlayView) {
+    NRESettings *settings = NRESettings.sharedSettings;
+    if (!settings.enabled) {
         return;
     }
 
-    self.overlayView = [%c(MTMaterialView) materialViewWithRecipe:MTMaterialRecipeNotificationsDark options:MTMaterialOptionsBaseOverlay];
-    [self insertSubview:self.overlayView aboveSubview:backgroundView];
+    MTMaterialView *backgroundView = [self valueForKey:@"_backgroundView"];
+    if (settings.usingDark) {
+        [backgroundView transitionToRecipe:MTMaterialRecipeNotificationsDark options:MTMaterialOptionsBlur | MTMaterialOptionsBaseOverlay weighting:backgroundView.weighting];
+    } else {
+        if (self.overlayView) {
+            return;
+        }
+
+        [backgroundView transitionToRecipe:MTMaterialRecipeNotificationsDark options:MTMaterialOptionsBlur weighting:backgroundView.weighting];
+
+        self.overlayView = [%c(MTMaterialView) materialViewWithRecipe:MTMaterialRecipeNotificationsDark options:MTMaterialOptionsBaseOverlay];
+        [self insertSubview:self.overlayView aboveSubview:backgroundView];
+    }
 }
 
 - (void)_setBackgroundViewCornerRadius:(CGFloat)cornerRadius {
     %orig;
 
-    [self.overlayView _setCornerRadius:cornerRadius];
+    if (self.overlayView) {
+        [self.overlayView _setCornerRadius:cornerRadius];
+    }
+}
+
+%new 
+- (void)settings:(NRESettings *)settings changedValueForKeyPath:(NSString *)keyPath {
+    MTMaterialView *backgroundView = [self valueForKey:@"_backgroundView"];
+    if (!settings.enabled) {
+        if (self.overlayView) {
+            [self.overlayView removeFromSuperview];
+            self.overlayView = nil;
+        }
+
+        [backgroundView transitionToRecipe:MTMaterialRecipeNotifications options:MTMaterialOptionsBlur | MTMaterialOptionsBaseOverlay weighting:backgroundView.weighting];
+        [self setNeedsLayout];
+        return;
+    }
+
+    if (settings.usingDark) {
+        if (self.overlayView) {
+            [self.overlayView removeFromSuperview];
+            self.overlayView = nil;
+        }
+        
+        [backgroundView transitionToRecipe:MTMaterialRecipeNotificationsDark options:MTMaterialOptionsBlur | MTMaterialOptionsBaseOverlay weighting:backgroundView.weighting];
+    } else {
+        if (self.overlayView) {
+            return;
+        }
+
+        [backgroundView transitionToRecipe:MTMaterialRecipeNotificationsDark options:MTMaterialOptionsBlur weighting:backgroundView.weighting];
+
+        self.overlayView = [%c(MTMaterialView) materialViewWithRecipe:MTMaterialRecipeNotificationsDark options:MTMaterialOptionsBaseOverlay];
+        [self insertSubview:self.overlayView aboveSubview:backgroundView];
+    }
+
+    [self setNeedsLayout];
 }
 
 %end
