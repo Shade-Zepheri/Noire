@@ -119,6 +119,10 @@
 
 %new 
 - (void)settings:(NRESettings *)settings changedValueForKeyPath:(NSString *)keyPath {
+    if (!settings.enabled && ![keyPath isEqualToString:@"enabled"]) {
+        return;
+    }
+
     MTMaterialView *backgroundView = [self valueForKey:@"_backgroundView"];
     if (!settings.enabled) {
         if (self.overlayView) {
