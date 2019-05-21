@@ -50,6 +50,7 @@
         [self notifyObserversOfSettingsChange:key];
     }
 
+    _cachedPrefs = settingsDictionary;
     _usingDark = _materialTheme == NREMaterialThemeDark;
 }
 

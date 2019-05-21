@@ -3,7 +3,6 @@
 #import <SpringBoard/SBWallpaperEffectView+Private.h>
 #import <Widgets/WGShortLookStyleButton.h>
 #import <Widgets/WGWidgetPlatterView.h>
-#import <HBLog.h>
 
 #pragma mark - Dock
 
