@@ -40,6 +40,8 @@
 #pragma mark - Callbacks
 
 - (void)preferencesWereUpdated {
+    _usingDark = _materialTheme == NREMaterialThemeDark;
+
     // Observers
     NSDictionary<NSString *, id> *settingsDictionary = _preferences.dictionaryRepresentation;
     for (NSString *key in settingsDictionary.allKeys) {
@@ -51,7 +53,6 @@
     }
 
     _cachedPrefs = settingsDictionary;
-    _usingDark = _materialTheme == NREMaterialThemeDark;
 }
 
 #pragma mark - Observers
