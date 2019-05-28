@@ -25,12 +25,18 @@ typedef NS_OPTIONS(NSUInteger, MTMaterialOptions) {
     MTMaterialOptionsCaptureOnly      = 1 << 8
 };
 
+@class MTVibrantStylingProvider;
+
 @interface MTMaterialView : UIView
+@property (weak, readonly, nonatomic) MTVibrantStylingProvider *vibrantStylingProvider; 
 @property (assign, nonatomic) CGFloat weighting; 
+@property (nonatomic,copy) NSString *groupName;
 
 + (instancetype)materialViewWithRecipe:(MTMaterialRecipe)recipe options:(MTMaterialOptions)options;
 
+- (CGFloat)cornerRadius;
 - (void)_setCornerRadius:(CGFloat)cornerRadius;
+
 - (void)transitionToRecipe:(MTMaterialRecipe)recipe options:(MTMaterialOptions)options weighting:(CGFloat)weighting;
 
 @end

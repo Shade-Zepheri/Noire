@@ -1,5 +1,7 @@
-#import <PlatterKit/PLPlatterView.h>
+#import <PlatterKit/PLTitledPlatterView.h>
 
-@interface WGWidgetPlatterView : PLPlatterView
+@interface WGWidgetPlatterView : PLTitledPlatterView <NRESettingsObserver>
+// Added by me
+- (void)settings:(NRESettings *)settings changedValueForKeyPath:(NSString *)keyPath;
 
 @end
