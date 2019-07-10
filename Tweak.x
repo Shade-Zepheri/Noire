@@ -73,7 +73,7 @@
         return;
     }
 
-        [self updateWithRecipe:MTMaterialRecipeNotificationsDark options:MTMaterialOptionsBlur];            
+    [self updateWithRecipe:MTMaterialRecipeNotificationsDark options:MTMaterialOptionsBlur];
 
     UIView *overlayView = [self valueForKey:@"_headerOverlayView"];
     overlayView.hidden = YES;
@@ -105,13 +105,13 @@
         UIView *overlayView = [self valueForKey:@"_headerOverlayView"];
         overlayView.hidden = NO;
         self.sashHidden = NO;
-        
+
         [self setNeedsLayout];
 
         return;
     }
 
-        [self updateWithRecipe:MTMaterialRecipeNotificationsDark options:MTMaterialOptionsBlur];
+    [self updateWithRecipe:MTMaterialRecipeNotificationsDark options:MTMaterialOptionsBlur];
 
     UIView *overlayView = [self valueForKey:@"_headerOverlayView"];
     overlayView.hidden = YES;
@@ -155,8 +155,8 @@
     backgroundView.hidden = YES;
 
     if (self.darkeningView) {
-            return;
-        }
+        return;
+    }
 
     self.darkeningView = [[%c(PLPlatterView) alloc] initWithRecipe:MTMaterialRecipeNotificationsDark options:MTMaterialOptionsBlur];
     self.darkeningView.cornerRadius = [self _backgroundViewCornerRadius];
@@ -217,8 +217,8 @@
     }
 
     if (self.darkeningView) {
-            return;
-        }
+        return;
+    }
 
     self.darkeningView = [[%c(PLPlatterView) alloc] initWithRecipe:MTMaterialRecipeNotificationsDark options:MTMaterialOptionsBlur];
     self.darkeningView.cornerRadius = [self _backgroundViewCornerRadius];
