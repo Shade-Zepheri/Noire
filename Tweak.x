@@ -4,6 +4,7 @@
 #import <MaterialKit/UILabel+MTVibrantStylingAdditions.h>
 #import <SpringBoard/SBDockView+Private.h>
 #import <SpringBoard/SBWallpaperEffectView+Private.h>
+#import <PlatterKit/PLGlyphControl.h>
 #import <Widgets/WGShortLookStyleButton.h>
 #import <Widgets/WGWidgetPlatterView.h>
 #import <HBLog.h>
@@ -45,6 +46,51 @@
 
 - (BOOL)prefersDarkAppearance {
     return YES;
+}
+
+%end
+
+%hook PLGlyphControl
+
+- (instancetype)initWithMaterialRecipe:(MTMaterialRecipe)recipe backgroundMaterialOptions:(MTMaterialOptions)backgroundMaterialOptions overlayMaterialOptions:(MTMaterialOptions)overlayMaterialOptions {
+    self = %orig;
+    if (self) {
+        NRESettings *settings = NRESettings.sharedSettings;
+        [settings addObserver:self];
+
+        if (settings.enabled) {
+            // Update ivars with darkmode values
+            [self setValue:@(MTMaterialRecipeNotificationsDark) forKey:@"_materialRecipe"];
+            [self setValue:@(MTMaterialOptionsBaseOverlay) forKey:@"_overlayMaterialOptions"];
+        }
+    }
+
+    return self;
+}
+
+- (void)_configureBackgroundMaterialViewIfNecessary {
+    %orig;
+
+    // Fix corner radius
+    MTMaterialView *backgroundMaterialView = self.backgroundMaterialView;
+    backgroundMaterialView.clipsToBounds = YES;
+    backgroundMaterialView.layer.cornerRadius = [self _cornerRadius];
+}
+
+%new
+- (void)settings:(NRESettings *)settings changedValueForKeyPath:(NSString *)keyPath {
+    if (!settings.enabled && ![keyPath isEqualToString:@"enabled"]) {
+        return;
+    }
+
+    MTMaterialRecipe recipe = settings.enabled ? MTMaterialRecipeNotificationsDark : MTMaterialRecipeNotifications;
+    MTMaterialOptions overlayMaterialOptions = settings.enabled ? MTMaterialOptionsBaseOverlay : MTMaterialOptionsPrimaryOverlay;
+
+    // Update ivars with values
+    [self setValue:@(recipe) forKey:@"_materialRecipe"];
+    [self setValue:@(overlayMaterialOptions) forKey:@"_overlayMaterialOptions"];
+
+    [self setNeedsLayout];
 }
 
 %end
