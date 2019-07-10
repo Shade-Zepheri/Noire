@@ -1,11 +1,11 @@
-#import <MaterialKit/MTMaterialView.h>
+@class MTMaterialView, PLPlatterView;
 
 @interface WGShortLookStyleButton : UIControl <NRESettingsObserver> {
     MTMaterialView *_backgroundView;
     UILabel *_titleLabel;
 }
 
-@property (strong, nonatomic) MTMaterialView *overlayView; // Added by me
+@property (strong, nonatomic) PLPlatterView *darkeningView; // Added by me
 
 - (CGFloat)_dimension;
 - (CGFloat)_backgroundViewCornerRadius;
