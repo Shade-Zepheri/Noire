@@ -4,7 +4,6 @@
 @implementation NRESettings {
     HBPreferences *_preferences;
     NSDictionary<NSString *, id> *_cachedPrefs;
-    NREMaterialTheme _materialTheme;
 }
 
 #pragma mark - Init
@@ -28,7 +27,6 @@
         _preferences = [HBPreferences preferencesForIdentifier:@"com.shade.noire"];
 
         [_preferences registerBool:&_enabled default:NO forKey:NREPreferencesEnabledKey];
-        [_preferences registerInteger:(NSInteger *)&_materialTheme default:NREMaterialThemeColored forKey:NREPreferencesMaterialThemeKey];
 
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(preferencesWereUpdated) name:HBPreferencesDidChangeNotification object:nil];
         [self preferencesWereUpdated];
@@ -40,8 +38,6 @@
 #pragma mark - Callbacks
 
 - (void)preferencesWereUpdated {
-    _usingDark = _materialTheme == NREMaterialThemeDark;
-
     // Observers
     NSDictionary<NSString *, id> *settingsDictionary = _preferences.dictionaryRepresentation;
     for (NSString *key in settingsDictionary.allKeys) {

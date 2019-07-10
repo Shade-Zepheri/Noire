@@ -73,11 +73,7 @@
         return;
     }
 
-    if (settings.usingDark) {
-
-    } else {
         [self updateWithRecipe:MTMaterialRecipeNotificationsDark options:MTMaterialOptionsBlur];            
-    }
 
     UIView *overlayView = [self valueForKey:@"_headerOverlayView"];
     overlayView.hidden = YES;
@@ -115,11 +111,7 @@
         return;
     }
 
-    if (settings.usingDark) {
-
-    } else {
         [self updateWithRecipe:MTMaterialRecipeNotificationsDark options:MTMaterialOptionsBlur];
-    }
 
     UIView *overlayView = [self valueForKey:@"_headerOverlayView"];
     overlayView.hidden = YES;
