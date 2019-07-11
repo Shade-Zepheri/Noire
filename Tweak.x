@@ -280,20 +280,29 @@
     // Update overlay
     MTMaterialView *overlayView = self.darkeningView.mainOverlayView;
     [overlayView transitionToRecipe:MTMaterialRecipeNotificationsDark options:MTMaterialOptionsBaseOverlay weighting:backgroundView.weighting];
+}
 
-    // Update label
+- (void)_configureTitleLabelIfNecessary {
+    %orig;
+
+    // Set proper styling
+    NRESettings *settings = NRESettings.sharedSettings;
+    if (!settings.enabled) {
+        return;
+    }
+
     UILabel *titleLabel = [self valueForKey:@"_titleLabel"];
     [titleLabel mt_removeAllVibrantStyling];
     MTVibrantStyling *styling = [self.darkeningView.vibrantStylingProvider vibrantStylingWithStyle:1];
     [titleLabel mt_applyVibrantStyling:styling];
-    [self.darkeningView addSubview:titleLabel];
+    [self.darkeningView.customContentView addSubview:titleLabel];
 }
 
 - (CGFloat)_backgroundViewCornerRadius {
-    // Bug: Always returns 0 despite what reversing suggest
-    // Manually implement what should happen
+    // Set so checks platterview so it can be properly set
 
     MTMaterialView *backgroundView = [self valueForKey:@"_backgroundView"];
+    // return (!self.darkeningView) ? backgroundView.cornerRadius : self.darkeningView.cornerRadius;
     return backgroundView.cornerRadius;
 }
 
@@ -347,7 +356,7 @@
     [titleLabel mt_removeAllVibrantStyling];
     MTVibrantStyling *styling = [self.darkeningView.vibrantStylingProvider vibrantStylingWithStyle:1];
     [titleLabel mt_applyVibrantStyling:styling];
-    [self.darkeningView addSubview:titleLabel];
+    [self.darkeningView.customContentView addSubview:titleLabel];
 
     [self setNeedsLayout];
 }

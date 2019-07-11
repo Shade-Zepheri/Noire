@@ -7,7 +7,8 @@
 @property (readonly, nonatomic) MTMaterialOptions options; 
 @property (readonly, nonatomic) MTMaterialView *backgroundMaterialView; 
 @property (readonly, nonatomic) MTMaterialView *mainOverlayView; 
-@property (nonatomic,readonly) MTVibrantStylingProvider * vibrantStylingProvider;
+@property (readonly, nonatomic) UIView *customContentView;
+@property (readonly, nonatomic) MTVibrantStylingProvider *vibrantStylingProvider;
 @property (assign, nonatomic) CGFloat cornerRadius;
 
 - (instancetype)initWithRecipe:(MTMaterialRecipe)recipe options:(MTMaterialOptions)options;
