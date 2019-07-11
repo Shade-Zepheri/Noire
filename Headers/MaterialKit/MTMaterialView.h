@@ -37,6 +37,9 @@ typedef NS_OPTIONS(NSUInteger, MTMaterialOptions) {
 - (CGFloat)cornerRadius;
 - (void)_setCornerRadius:(CGFloat)cornerRadius;
 
+- (CGFloat)_continuousCornerRadius;
+- (CGFloat)_setContinuousCornerRadius:(CGFloat)cornerRadius;
+
 - (void)transitionToRecipe:(MTMaterialRecipe)recipe options:(MTMaterialOptions)options weighting:(CGFloat)weighting;
 
 @end

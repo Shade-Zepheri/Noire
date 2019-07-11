@@ -2,9 +2,10 @@
 #import <MaterialKit/MTVibrantStyling.h>
 #import <MaterialKit/MTVibrantStylingProvider.h>
 #import <MaterialKit/UILabel+MTVibrantStylingAdditions.h>
+#import <PlatterKit/PLGlyphControl.h>
 #import <SpringBoard/SBDockView+Private.h>
 #import <SpringBoard/SBWallpaperEffectView+Private.h>
-#import <PlatterKit/PLGlyphControl.h>
+#import <UserNotificationsUIKit/NCNotificationLongLookView+Private.h>
 #import <Widgets/WGShortLookStyleButton.h>
 #import <Widgets/WGWidgetPlatterView.h>
 #import <HBLog.h>
@@ -46,6 +47,74 @@
 
 - (BOOL)prefersDarkAppearance {
     return YES;
+}
+
+%end
+
+%hook NCNotificationLongLookView
+%property (retain, nonatomic) MTMaterialView *overlayView;
+
+- (instancetype)init {
+    self = %orig;
+    if (self) {
+        NRESettings *settings = NRESettings.sharedSettings;
+        [settings addObserver:self];
+    }
+
+    return self;
+}
+
+- (void)_configureActionsBackgroundViewIfNecessaryWithActions:(NSArray *)actions {
+    %orig;
+
+    NRESettings *settings = NRESettings.sharedSettings;
+    if (!settings.enabled) {
+        return;
+    }
+
+    // Update color
+    MTMaterialView *backgroundView = [self valueForKey:@"_actionsBackgroundView"];
+    [backgroundView transitionToRecipe:MTMaterialRecipeNotificationsDark options:MTMaterialOptionsBlur weighting:backgroundView.weighting];
+
+    self.overlayView = [%c(MTMaterialView) materialViewWithRecipe:MTMaterialRecipeNotificationsDark options:MTMaterialOptionsBaseOverlay];
+    self.overlayView.groupName = backgroundView.groupName;
+    [self.overlayView _setContinuousCornerRadius:[backgroundView _continuousCornerRadius]];
+    [backgroundView.superview insertSubview:self.overlayView aboveSubview:backgroundView];
+}
+
+- (void)_layoutActionsView {
+    %orig;
+
+    // Update frames
+    MTMaterialView *backgroundView = [self valueForKey:@"_actionsBackgroundView"];
+    self.overlayView.frame = backgroundView.frame;
+}
+
+%new
+- (void)settings:(NRESettings *)settings changedValueForKeyPath:(NSString *)keyPath {
+    if (![keyPath isEqualToString:@"enabled"]) {
+        return;
+    }
+
+    MTMaterialView *backgroundView = [self valueForKey:@"_actionsBackgroundView"];
+    if (!settings.enabled) {
+        if (self.overlayView) {
+            [self.overlayView removeFromSuperview];
+            self.overlayView = nil;
+        }
+
+        [backgroundView transitionToRecipe:MTMaterialRecipeWidgetHosts options:MTMaterialOptionsBlur | MTMaterialOptionsBaseOverlay weighting:backgroundView.weighting];
+
+        [self setNeedsLayout];
+        return;
+    }
+
+    [backgroundView transitionToRecipe:MTMaterialRecipeNotificationsDark options:MTMaterialOptionsBlur weighting:backgroundView.weighting];
+
+    self.overlayView = [%c(MTMaterialView) materialViewWithRecipe:MTMaterialRecipeNotificationsDark options:MTMaterialOptionsBaseOverlay];
+    self.overlayView.groupName = backgroundView.groupName;
+    [self.overlayView _setContinuousCornerRadius:[backgroundView _continuousCornerRadius]];
+    [backgroundView.superview insertSubview:self.overlayView aboveSubview:backgroundView];
 }
 
 %end
