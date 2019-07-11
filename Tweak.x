@@ -29,6 +29,14 @@
     return self;
 }
 
+- (void)dealloc {
+    %orig;
+
+    // Unregister observer
+    NRESettings *settings = NRESettings.sharedSettings;
+    [settings removeObserver:self];
+}
+
 %new
 - (void)settings:(NRESettings *)settings changedValueForKeyPath:(NSString *)keyPath {
     if (![keyPath isEqualToString:@"enabled"]) {
@@ -63,6 +71,14 @@
     }
 
     return self;
+}
+
+- (void)dealloc {
+    %orig;
+
+    // Unregister observer
+    NRESettings *settings = NRESettings.sharedSettings;
+    [settings removeObserver:self];
 }
 
 - (void)_configureActionsBackgroundViewIfNecessaryWithActions:(NSArray *)actions {
@@ -138,6 +154,14 @@
     return self;
 }
 
+- (void)dealloc {
+    %orig;
+
+    // Unregister observer
+    NRESettings *settings = NRESettings.sharedSettings;
+    [settings removeObserver:self];
+}
+
 - (void)_configureBackgroundMaterialViewIfNecessary {
     %orig;
 
@@ -179,6 +203,13 @@
     return self;
 }
 
+- (void)dealloc {
+    %orig;
+
+    // Unregister observer
+    NRESettings *settings = NRESettings.sharedSettings;
+    [settings removeObserver:self];
+}
 
 - (void)layoutSubviews {
     %orig;
@@ -247,6 +278,14 @@
     }
 
     return self;
+}
+
+- (void)dealloc {
+    %orig;
+
+    // Unregister observer
+    NRESettings *settings = NRESettings.sharedSettings;
+    [settings removeObserver:self];
 }
 
 - (void)layoutSubviews {
@@ -377,6 +416,14 @@
     }
 
     return self;
+}
+
+- (void)dealloc {
+    %orig;
+
+    // Unregister observer
+    NRESettings *settings = NRESettings.sharedSettings;
+    [settings removeObserver:self];
 }
 
 - (void)loadView {
