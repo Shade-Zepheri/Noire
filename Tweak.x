@@ -5,6 +5,7 @@
 #import <PlatterKit/PLGlyphControl.h>
 #import <SpringBoard/SBDockView+Private.h>
 #import <SpringBoard/SBWallpaperEffectView+Private.h>
+#import <SpringBoardUI/SBUIIconForceTouchWrapperViewController.h>
 #import <UserNotificationsUIKit/NCNotificationLongLookView+Private.h>
 #import <Widgets/WGShortLookStyleButton.h>
 #import <Widgets/WGWidgetPlatterView.h>
@@ -359,6 +360,93 @@
     [self.darkeningView.customContentView addSubview:titleLabel];
 
     [self setNeedsLayout];
+}
+
+%end
+
+#pragma mark - 3D Touch
+
+%hook SBUIIconForceTouchWrapperViewController
+%property (retain, nonatomic) MTMaterialView *overlayView;
+
+- (instancetype)initWithChildViewController:(UIViewController *)childViewController {
+    self = %orig;
+    if (self) {
+        NRESettings *settings = NRESettings.sharedSettings;
+        [settings addObserver:self];
+    }
+
+    return self;
+}
+
+- (void)loadView {
+    %orig;
+
+    NRESettings *settings = NRESettings.sharedSettings;
+    if (!settings.enabled) {
+        return;
+    }
+
+    // Get and update background view
+    MTMaterialView *backgroundView = [self backgroundMaterialView];
+    [backgroundView transitionToRecipe:MTMaterialRecipeNotificationsDark options:MTMaterialOptionsBlur weighting:backgroundView.weighting];
+
+    // Create overlay
+    self.overlayView = [%c(MTMaterialView) materialViewWithRecipe:MTMaterialRecipeNotificationsDark options:MTMaterialOptionsBaseOverlay];
+    self.overlayView.groupName = backgroundView.groupName;
+    // [self.overlayView _setContinuousCornerRadius:[backgroundView _continuousCornerRadius]];
+    [backgroundView.superview insertSubview:self.overlayView aboveSubview:backgroundView];
+}
+
+- (void)viewDidLayoutSubviews {
+    %orig;
+
+    // Update frame
+    MTMaterialView *backgroundView = [self backgroundMaterialView];
+    self.overlayView.frame = backgroundView.bounds;
+}
+
+%new
+- (MTMaterialView *)backgroundMaterialView {
+    MTMaterialView *backgroundView;
+    for (UIView *view in self.view.subviews) {
+        if (![view isKindOfClass:%c(MTMaterialView)]) {
+            continue;
+        }
+
+        backgroundView = (MTMaterialView *)view;
+        break;
+    }
+
+    return backgroundView;
+}
+
+%new 
+- (void)settings:(NRESettings *)settings changedValueForKeyPath:(NSString *)keyPath {
+    if (![keyPath isEqualToString:@"enabled"]) {
+        return;
+    }
+
+    MTMaterialView *backgroundView = [self backgroundMaterialView];
+    if (!settings.enabled) {
+        if (self.overlayView) {
+            [self.overlayView removeFromSuperview];
+            self.overlayView = nil;
+        }
+
+        [backgroundView transitionToRecipe:MTMaterialRecipeWidgetHosts options:MTMaterialOptionsBlur | MTMaterialOptionsBaseOverlay weighting:backgroundView.weighting];
+
+        [self.view setNeedsLayout];
+        return;
+    }
+
+    [backgroundView transitionToRecipe:MTMaterialRecipeNotificationsDark options:MTMaterialOptionsBlur weighting:backgroundView.weighting];
+
+    self.overlayView = [%c(MTMaterialView) materialViewWithRecipe:MTMaterialRecipeNotificationsDark options:MTMaterialOptionsBaseOverlay];
+    self.overlayView.frame = backgroundView.bounds;
+    self.overlayView.groupName = backgroundView.groupName;
+    // [self.overlayView _setContinuousCornerRadius:[backgroundView _continuousCornerRadius]];
+    [backgroundView.superview insertSubview:self.overlayView aboveSubview:backgroundView];
 }
 
 %end
