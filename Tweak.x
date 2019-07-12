@@ -30,11 +30,11 @@
 }
 
 - (void)dealloc {
-    %orig;
-
     // Unregister observer
     NRESettings *settings = NRESettings.sharedSettings;
     [settings removeObserver:self];
+
+    %orig;
 }
 
 %new
@@ -74,11 +74,11 @@
 }
 
 - (void)dealloc {
-    %orig;
-
     // Unregister observer
     NRESettings *settings = NRESettings.sharedSettings;
     [settings removeObserver:self];
+
+    %orig;
 }
 
 - (void)_configureActionsBackgroundViewIfNecessaryWithActions:(NSArray *)actions {
@@ -155,11 +155,11 @@
 }
 
 - (void)dealloc {
-    %orig;
-
     // Unregister observer
     NRESettings *settings = NRESettings.sharedSettings;
     [settings removeObserver:self];
+
+    %orig;
 }
 
 - (void)_configureBackgroundMaterialViewIfNecessary {
@@ -204,11 +204,11 @@
 }
 
 - (void)dealloc {
-    %orig;
-
     // Unregister observer
     NRESettings *settings = NRESettings.sharedSettings;
     [settings removeObserver:self];
+
+    %orig;
 }
 
 - (void)layoutSubviews {
@@ -281,11 +281,11 @@
 }
 
 - (void)dealloc {
-    %orig;
-
     // Unregister observer
     NRESettings *settings = NRESettings.sharedSettings;
     [settings removeObserver:self];
+
+    %orig;
 }
 
 - (void)layoutSubviews {
@@ -419,11 +419,11 @@
 }
 
 - (void)dealloc {
-    %orig;
-
     // Unregister observer
     NRESettings *settings = NRESettings.sharedSettings;
     [settings removeObserver:self];
+
+    %orig;
 }
 
 - (void)loadView {
@@ -441,7 +441,6 @@
     // Create overlay
     self.overlayView = [%c(MTMaterialView) materialViewWithRecipe:MTMaterialRecipeNotificationsDark options:MTMaterialOptionsBaseOverlay];
     self.overlayView.groupName = backgroundView.groupName;
-    // [self.overlayView _setContinuousCornerRadius:[backgroundView _continuousCornerRadius]];
     [backgroundView.superview insertSubview:self.overlayView aboveSubview:backgroundView];
 }
 
@@ -492,7 +491,6 @@
     self.overlayView = [%c(MTMaterialView) materialViewWithRecipe:MTMaterialRecipeNotificationsDark options:MTMaterialOptionsBaseOverlay];
     self.overlayView.frame = backgroundView.bounds;
     self.overlayView.groupName = backgroundView.groupName;
-    // [self.overlayView _setContinuousCornerRadius:[backgroundView _continuousCornerRadius]];
     [backgroundView.superview insertSubview:self.overlayView aboveSubview:backgroundView];
 }
 
