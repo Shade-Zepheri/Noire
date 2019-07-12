@@ -1,10 +1,16 @@
 #import "NRESettings.h"
 #import <MaterialKit/MTVibrantStyling.h>
 #import <MaterialKit/MTVibrantStylingProvider.h>
+#import <MaterialKit/UIImageView+MTVibrantStylingAdditions.h>
 #import <MaterialKit/UILabel+MTVibrantStylingAdditions.h>
+#import <MaterialKit/UIView+MTVibrantStylingAdditions.h>
 #import <PlatterKit/PLGlyphControl.h>
 #import <SpringBoard/SBDockView+Private.h>
 #import <SpringBoard/SBWallpaperEffectView+Private.h>
+#import <SpringBoardUI/SBUIActionPlatterViewController.h>
+#import <SpringBoardUI/SBUIAppIconForceTouchShortcutViewController.h>
+#import <SpringBoardUI/SBUIActionView.h>
+#import <SpringBoardUI/SBUIActionViewLabel.h>
 #import <SpringBoardUI/SBUIIconForceTouchWrapperViewController.h>
 #import <UserNotificationsUIKit/NCNotificationLongLookView+Private.h>
 #import <Widgets/WGShortLookStyleButton.h>
@@ -442,6 +448,30 @@
     self.overlayView = [%c(MTMaterialView) materialViewWithRecipe:MTMaterialRecipeNotificationsDark options:MTMaterialOptionsBaseOverlay];
     self.overlayView.groupName = backgroundView.groupName;
     [backgroundView.superview insertSubview:self.overlayView aboveSubview:backgroundView];
+
+    // Theme labels
+    for (SBUIActionView *actionView in [self actionViews]) {
+        // Theme icon
+        UIImageView *imageView = [actionView valueForKey:@"_imageView"];
+        imageView.hidden = YES;
+        UIImageView *legibilityImageView = [actionView valueForKey:@"_legibilityTreatedImageView"];
+        legibilityImageView.opaque = YES;
+        legibilityImageView.tintColor = [UIColor whiteColor];
+
+        // Get each action and theme label
+        SBUIActionViewLabel *titleLabel = [actionView valueForKey:@"_titleLabel"];
+        titleLabel.hidden = YES;
+        SBUIActionViewLabel *legibilityTitleLabel = [actionView valueForKey:@"_legibilityTreatedTitleLabel"];
+        legibilityTitleLabel.textColor = [UIColor whiteColor];
+
+        SBUIActionViewLabel *subtitleLabel = [actionView valueForKey:@"_subtitleLabel"];
+        if (subtitleLabel) {
+            // Theme subtitle
+            subtitleLabel.hidden = YES;
+            SBUIActionViewLabel *legibilitySubtitleLabel = [actionView valueForKey:@"_legibilityTreatedSubtitleLabel"];
+            legibilitySubtitleLabel.textColor = [UIColor whiteColor];
+        }
+    }
 }
 
 - (void)viewDidLayoutSubviews {
@@ -450,6 +480,14 @@
     // Update frame
     MTMaterialView *backgroundView = [self backgroundMaterialView];
     self.overlayView.frame = backgroundView.bounds;
+}
+
+%new
+- (NSArray<SBUIActionView *> *)actionViews {
+    SBUIAppIconForceTouchShortcutViewController *shortcutViewController = (SBUIAppIconForceTouchShortcutViewController *)self.childViewController;
+    SBUIActionPlatterViewController *actionViewController = [shortcutViewController valueForKey:@"_actionPlatterViewController"];
+    UIStackView *stackView = [actionViewController valueForKey:@"_stackView"];
+    return stackView.arrangedSubviews;
 }
 
 %new
@@ -482,6 +520,29 @@
 
         [backgroundView transitionToRecipe:MTMaterialRecipeWidgetHosts options:MTMaterialOptionsBlur | MTMaterialOptionsBaseOverlay weighting:backgroundView.weighting];
 
+        for (SBUIActionView *actionView in [self actionViews]) {
+            // Theme icon
+            UIImageView *imageView = [actionView valueForKey:@"_imageView"];
+            imageView.hidden = NO;
+            UIImageView *legibilityImageView = [actionView valueForKey:@"_legibilityTreatedImageView"];
+            legibilityImageView.opaque = NO;
+            legibilityImageView.tintColor = [UIColor blackColor];
+
+            // Get each action and theme label
+            SBUIActionViewLabel *titleLabel = [actionView valueForKey:@"_titleLabel"];
+            titleLabel.hidden = NO;
+            SBUIActionViewLabel *legibilityTitleLabel = [actionView valueForKey:@"_legibilityTreatedTitleLabel"];
+            legibilityTitleLabel.textColor = [UIColor blackColor];
+
+            SBUIActionViewLabel *subtitleLabel = [actionView valueForKey:@"_subtitleLabel"];
+            if (subtitleLabel) {
+                // Theme subtitle
+                subtitleLabel.hidden = NO;
+                SBUIActionViewLabel *legibilitySubtitleLabel = [actionView valueForKey:@"_legibilityTreatedSubtitleLabel"];
+                legibilitySubtitleLabel.textColor = [UIColor blackColor];
+            }
+        }
+
         [self.view setNeedsLayout];
         return;
     }
@@ -492,6 +553,29 @@
     self.overlayView.frame = backgroundView.bounds;
     self.overlayView.groupName = backgroundView.groupName;
     [backgroundView.superview insertSubview:self.overlayView aboveSubview:backgroundView];
+
+    for (SBUIActionView *actionView in [self actionViews]) {
+        // Theme icon
+        UIImageView *imageView = [actionView valueForKey:@"_imageView"];
+        imageView.hidden = YES;
+        UIImageView *legibilityImageView = [actionView valueForKey:@"_legibilityTreatedImageView"];
+        legibilityImageView.opaque = YES;
+        legibilityImageView.tintColor = [UIColor whiteColor];
+
+        // Get each action and theme label
+        SBUIActionViewLabel *titleLabel = [actionView valueForKey:@"_titleLabel"];
+        titleLabel.hidden = YES;
+        SBUIActionViewLabel *legibilityTitleLabel = [actionView valueForKey:@"_legibilityTreatedTitleLabel"];
+        legibilityTitleLabel.textColor = [UIColor whiteColor];
+
+        SBUIActionViewLabel *subtitleLabel = [actionView valueForKey:@"_subtitleLabel"];
+        if (subtitleLabel) {
+            // Theme subtitle
+            subtitleLabel.hidden = YES;
+            SBUIActionViewLabel *legibilitySubtitleLabel = [actionView valueForKey:@"_legibilityTreatedSubtitleLabel"];
+            legibilitySubtitleLabel.textColor = [UIColor whiteColor];
+        }
+    }
 }
 
 %end

@@ -1,6 +1,6 @@
 @class MTVibrantStyling;
 
-@interface UILabel (MTVibrantStylingAdditions)
+@interface UIImageView (MTVibrantStylingAdditions)
 
 - (void)mt_applyVibrantStyling:(MTVibrantStyling *)styling;
 
