@@ -1,6 +1,7 @@
-@class CCUICAPackageDescription;
+@class CCUICAPackageDescription, CCUILabeledRoundButton;
 
 @interface CCUILabeledRoundButtonViewController : UIViewController
+@property (strong, nonatomic) CCUILabeledRoundButton *buttonContainer;
 @property (strong, nonatomic) UIControl *button;
 @property (strong, nonatomic) CCUICAPackageDescription *glyphPackageDescription;
 @property (copy, nonatomic) NSString *glyphState;

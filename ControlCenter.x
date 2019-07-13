@@ -1,6 +1,7 @@
 #import "NRESettings.h"
 #import <Cephei/HBPreferences.h>
 #import <ControlCenterUIKit/ControlCenterUIKit.h>
+#import <MaterialKit/MaterialKit.h>
 #import <HBLog.h>
 
 %group Toggle
@@ -90,13 +91,82 @@
 %end
 %end
 
+%group Modules
+// Must be in here in order to not hook to early or late;
+// Theme disabled toggles light theme
+%hook CCUIConnectivityModuleViewController
+
+- (instancetype)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil {
+    self = %orig;
+    if (self) {
+        // Register observer
+        NRESettings *settings = NRESettings.sharedSettings;
+        [settings addObserver:self];
+    } 
+
+    return self;
+}
+
+- (void)dealloc {
+    // Unregister observer
+    NRESettings *settings = NRESettings.sharedSettings;
+    [settings removeObserver:self];
+
+    %orig;
+}
+
+- (void)viewDidLoad {
+    %orig;
+
+    // Check if enabled
+    NRESettings *settings = NRESettings.sharedSettings;
+    if (!settings.enabled) {
+        return;
+    }
+
+    // Theme buttons
+    for (CCUILabeledRoundButtonViewController *buttonViewController in self.buttonViewControllers) {
+        CCUILabeledRoundButton *buttonContainer = buttonViewController.buttonContainer;
+        CCUIRoundButton *buttonView = buttonContainer.buttonView;
+        MTMaterialView *alternateStateBackgroundView = buttonView.alternateSelectedStateBackgroundView;
+        if (!alternateStateBackgroundView) {
+            // Nothing to configure
+            continue;
+        }
+
+        [alternateStateBackgroundView transitionToRecipe:MTMaterialRecipeNotificationsDark options:MTMaterialOptionsSecondaryOverlay weighting:alternateStateBackgroundView.weighting];
+    }
+}
+
+%new 
+- (void)settings:(NRESettings *)settings changedValueForKeyPath:(NSString *)keyPath {
+    if (![keyPath isEqualToString:@"enabled"]) {
+        return;
+    }
+
+    // Update theme
+    for (CCUILabeledRoundButtonViewController *buttonViewController in self.buttonViewControllers) {
+        CCUILabeledRoundButton *buttonContainer = buttonViewController.buttonContainer;
+        CCUIRoundButton *buttonView = buttonContainer.buttonView;
+        MTMaterialView *alternateStateBackgroundView = buttonView.alternateSelectedStateBackgroundView;
+
+        MTMaterialRecipe recipe = settings.enabled ? MTMaterialRecipeNotificationsDark : MTMaterialRecipeControlCenterModules;
+        MTMaterialOptions options = settings.enabled ? MTMaterialOptionsSecondaryOverlay : MTMaterialOptionsPrimaryOverlay;
+        [alternateStateBackgroundView transitionToRecipe:recipe options:options weighting:alternateStateBackgroundView.weighting];
+    }
+}
+
+%end
+%end
+
 %hook CCUIModuleInstanceManager
 
 - (void)_updateModuleInstances {
     %orig;
 
-    // Load toggle
+    // Load hooks
     %init(Toggle);
+    %init(Modules);
 }
 
 %end

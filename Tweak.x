@@ -571,3 +571,102 @@
 }
 
 %end
+
+#pragma mark - Control Center
+
+// Theme light overlay
+%hook CCUIButtonModuleView
+
+- (instancetype)initWithFrame:(CGRect)frame {
+    self = %orig;
+    if (self) {
+        // Register observer
+        NRESettings *settings = NRESettings.sharedSettings;
+        [settings addObserver:self];
+
+        if (settings.enabled) {
+            // Theme overlay
+            MTMaterialView *highlightView = [self valueForKey:@"_highlightedBackgroundView"];
+            CGFloat initialAlpha = highlightView.alpha;
+            [highlightView transitionToRecipe:MTMaterialRecipeNotificationsDark options:MTMaterialOptionsSecondaryOverlay weighting:highlightView.weighting];
+
+            // Fix for improper theming
+            highlightView.alpha = initialAlpha;
+        }
+    } 
+
+    return self;
+}
+
+- (void)dealloc {
+    // Unregister observer
+    NRESettings *settings = NRESettings.sharedSettings;
+    [settings removeObserver:self];
+
+    %orig;
+}
+
+%new 
+- (void)settings:(NRESettings *)settings changedValueForKeyPath:(NSString *)keyPath {
+    if (![keyPath isEqualToString:@"enabled"]) {
+        return;
+    }
+
+    // Update theme
+    MTMaterialView *highlightView = [self valueForKey:@"_highlightedBackgroundView"];
+    CGFloat initialAlpha = highlightView.alpha;
+    MTMaterialRecipe recipe = settings.enabled ? MTMaterialRecipeNotificationsDark : MTMaterialRecipeControlCenterModules;
+    MTMaterialOptions options = settings.enabled ? MTMaterialOptionsSecondaryOverlay : MTMaterialOptionsPrimaryOverlay;
+    [highlightView transitionToRecipe:recipe options:options weighting:highlightView.weighting];
+
+    // Fix alpha
+    highlightView.alpha = initialAlpha;
+
+    [self setNeedsLayout];
+}
+
+%end
+
+%hook CCUIModuleSliderView
+
+- (instancetype)initWithFrame:(CGRect)frame {
+    self = %orig;
+    if (self) {
+        // Register observer
+        NRESettings *settings = NRESettings.sharedSettings;
+        [settings addObserver:self];
+
+        if (settings.enabled) {
+            // Theme overlay
+            MTMaterialView *backgroundView = [self valueForKey:@"_continuousValueBackgroundView"];
+            [backgroundView transitionToRecipe:MTMaterialRecipeNotificationsDark options:MTMaterialOptionsSecondaryOverlay weighting:backgroundView.weighting];
+        }
+    } 
+
+    return self;
+}
+
+- (void)dealloc {
+    // Unregister observer
+    NRESettings *settings = NRESettings.sharedSettings;
+    [settings removeObserver:self];
+
+    %orig;
+}
+
+%new 
+- (void)settings:(NRESettings *)settings changedValueForKeyPath:(NSString *)keyPath {
+    if (![keyPath isEqualToString:@"enabled"]) {
+        return;
+    }
+
+    // Update theme
+    MTMaterialView *backgroundView = [self valueForKey:@"_continuousValueBackgroundView"];
+    MTMaterialRecipe recipe = settings.enabled ? MTMaterialRecipeNotificationsDark : MTMaterialRecipeControlCenterModules;
+    MTMaterialOptions options = settings.enabled ? MTMaterialOptionsSecondaryOverlay : MTMaterialOptionsPrimaryOverlay;
+    [backgroundView transitionToRecipe:recipe options:options weighting:backgroundView.weighting];
+
+    [self setNeedsLayout];
+}
+
+%end
