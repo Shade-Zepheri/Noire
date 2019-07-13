@@ -1,20 +1,12 @@
 #import "NRESettings.h"
-#import <MaterialKit/MTVibrantStyling.h>
-#import <MaterialKit/MTVibrantStylingProvider.h>
-#import <MaterialKit/UIImageView+MTVibrantStylingAdditions.h>
-#import <MaterialKit/UILabel+MTVibrantStylingAdditions.h>
-#import <MaterialKit/UIView+MTVibrantStylingAdditions.h>
-#import <PlatterKit/PLGlyphControl.h>
-#import <SpringBoard/SBDockView+Private.h>
-#import <SpringBoard/SBWallpaperEffectView+Private.h>
-#import <SpringBoardUI/SBUIActionPlatterViewController.h>
-#import <SpringBoardUI/SBUIAppIconForceTouchShortcutViewController.h>
-#import <SpringBoardUI/SBUIActionView.h>
-#import <SpringBoardUI/SBUIActionViewLabel.h>
-#import <SpringBoardUI/SBUIIconForceTouchWrapperViewController.h>
+#import <ControlCenterUIKit/ControlCenterUIKit.h>
+#import <MaterialKit/MaterialKit.h>
+#import <PlatterKit/PlatterKit.h>
+#import <SpringBoard/SpringBoard+Private.h>
+#import <SpringBoardUI/SpringBoardUI.h>
+#import <UIKit/UIKit+Private.h>
 #import <UserNotificationsUIKit/NCNotificationLongLookView+Private.h>
-#import <Widgets/WGShortLookStyleButton.h>
-#import <Widgets/WGWidgetPlatterView.h>
+#import <Widgets/Widgets.h>
 #import <HBLog.h>
 
 #pragma mark - Dock

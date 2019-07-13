@@ -1,0 +1,7 @@
+#import "MTMaterialSettingsInterpolator.h"
+#import "MTMaterialView.h"
+#import "MTVibrantStyling.h"
+#import "MTVibrantStylingProvider.h"
+#import "UIImageView+MTVibrantStylingAdditions.h"
+#import "UILabel+MTVibrantStylingAdditions.h"
+#import "UIView+MTVibrantStylingAdditions.h"

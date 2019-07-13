@@ -5,13 +5,13 @@
     UILabel *_titleLabel;
 }
 
-@property (strong, nonatomic) PLPlatterView *darkeningView; // Added by me
-
+- (void)invalidateCachedGeometry;
 - (CGFloat)_dimension;
 - (CGFloat)_backgroundViewCornerRadius;
 - (void)_setBackgroundViewCornerRadius:(CGFloat)cornerRadius;
 
-// Also added by me
+// Added by me
+@property (strong, nonatomic) PLPlatterView *darkeningView;
 - (void)settings:(NRESettings *)settings changedValueForKeyPath:(NSString *)keyPath;
 
 @end

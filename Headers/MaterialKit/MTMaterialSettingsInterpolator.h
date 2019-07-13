@@ -1,0 +1,3 @@
+@interface MTMaterialSettingsInterpolator : NSObject
+
+@end

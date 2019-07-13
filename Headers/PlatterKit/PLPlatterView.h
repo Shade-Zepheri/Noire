@@ -1,5 +1,3 @@
-#import <MaterialKit/MTMaterialView.h>
-
 @class MTVibrantStylingProvider;
 
 @interface PLPlatterView : UIView

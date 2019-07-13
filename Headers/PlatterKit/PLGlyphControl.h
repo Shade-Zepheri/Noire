@@ -1,4 +1,4 @@
-#import <MaterialKit/MTMaterialView.h>
+@class MTMaterialView;
 
 @interface PLGlyphControl : UIControl <NRESettingsObserver>
 @property (getter=_backgroundMaterialView, readonly, nonatomic) MTMaterialView *backgroundMaterialView; 

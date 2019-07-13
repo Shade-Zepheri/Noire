@@ -1,7 +1,8 @@
-#import <MaterialKit/MTMaterialView.h>
+@class MTMaterialView, PLInterfaceActionGroupView;
 
 @interface PLExpandedPlatterView : UIView {
     MTMaterialView *_actionsBackgroundView;
+    PLInterfaceActionGroupView *_actionsView;
 }
 
 @end
