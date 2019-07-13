@@ -15,10 +15,15 @@ TWEAK_NAME = Noire
 $(TWEAK_NAME)_FILES = $(wildcard *.[xm])
 $(TWEAK_NAME)_EXTRA_FRAMEWORKS = Cephei
 $(TWEAK_NAME)_CFLAGS = -IHeaders
+$(TWEAK_NAME)_LDFLAGS = $(wildcard *.tbd)
+
+BUNDLE_NAME = com.shade.noire
+$(BUNDLE_NAME)_INSTALL_PATH = /Library/Application Support/
 
 SUBPROJECTS = Settings
 
 include $(THEOS_MAKE_PATH)/tweak.mk
+include $(THEOS)/makefiles/bundle.mk
 include $(THEOS_MAKE_PATH)/aggregate.mk
 
 after-install::
