@@ -708,8 +708,10 @@
     }
 
     if (!settings.enabled) {
+        if (self.overlayView) {
         [self.overlayView removeFromSuperview];
         self.overlayView = nil;
+        }
 
         // Reshow tint
         UIView *tintView = [self valueForKey:@"_tintView"];
@@ -781,8 +783,10 @@
     }
 
     if (!settings.enabled) {
+        if (self.overlayView) {
         [self.overlayView removeFromSuperview];
         self.overlayView = nil;
+        }
 
         // Reshow tint
         UIView *backgroundView = [self valueForKey:@"_backgroundView"];
