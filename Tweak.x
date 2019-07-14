@@ -670,3 +670,152 @@
 }
 
 %end
+
+#pragma mark - Folders
+
+%hook SBFolderBackgroundView
+%property (retain, nonatomic) MTMaterialView *overlayView;
+
+- (instancetype)initWithFrame:(CGRect)frame {
+    self = %orig;
+    if (self) {
+        // Register observer
+        NRESettings *settings = NRESettings.sharedSettings;
+        [settings addObserver:self];
+
+        if (settings.enabled) {
+            // Can create here because calling orig stack
+            self.overlayView = [%c(MTMaterialView) materialViewWithRecipe:MTMaterialRecipeNotificationsDark options:MTMaterialOptionsBaseOverlay | MTMaterialOptionsBlur];
+            [self addSubview:self.overlayView];
+
+            // Hide orig tint view
+            UIView *tintView = [self valueForKey:@"_tintView"];
+            tintView.hidden = YES;
+        }
+    } 
+
+    return self;
+}
+
+- (void)dealloc {
+    // Unregister observer
+    NRESettings *settings = NRESettings.sharedSettings;
+    [settings removeObserver:self];
+
+    %orig;
+}
+
+- (void)layoutSubviews {
+    %orig;
+
+    if (self.overlayView) {
+        UIView *tintView = [self valueForKey:@"_tintView"];
+        self.overlayView.frame = tintView.bounds;
+    }
+}
+
+%new 
+- (void)settings:(NRESettings *)settings changedValueForKeyPath:(NSString *)keyPath {
+    if (![keyPath isEqualToString:@"enabled"]) {
+        return;
+    }
+
+    if (!settings.enabled) {
+        [self.overlayView removeFromSuperview];
+        self.overlayView = nil;
+
+        // Reshow tint
+        UIView *tintView = [self valueForKey:@"_tintView"];
+        tintView.hidden = NO;
+
+        return;
+    }
+
+    // Create overlay
+    self.overlayView = [%c(MTMaterialView) materialViewWithRecipe:MTMaterialRecipeNotificationsDark options:MTMaterialOptionsBaseOverlay | MTMaterialOptionsBlur];
+    [self addSubview:self.overlayView];
+
+    // Hide tint
+    UIView *tintView = [self valueForKey:@"_tintView"];
+    tintView.hidden = YES;
+
+    [self setNeedsLayout];
+}
+
+%end
+
+%hook SBFolderIconImageView
+%property (retain, nonatomic) MTMaterialView *overlayView;
+
+- (instancetype)initWithFrame:(CGRect)frame {
+    self = %orig;
+    if (self) {
+        // Register observer
+        NRESettings *settings = NRESettings.sharedSettings;
+        [settings addObserver:self];
+
+        if (settings.enabled) {
+            // Hide orig tint view
+            UIView *backgroundView = [self valueForKey:@"_backgroundView"];
+            backgroundView.hidden = YES;
+
+            // Can create here because calling orig stack
+            self.overlayView = [%c(MTMaterialView) materialViewWithRecipe:MTMaterialRecipeNotificationsDark options:MTMaterialOptionsBaseOverlay | MTMaterialOptionsBlur];
+            [self.overlayView _setCornerRadius:backgroundView.layer.cornerRadius];
+            [self addSubview:self.overlayView];
+            [self sendSubviewToBack:self.overlayView];
+
+        }
+    } 
+
+    return self;
+}
+
+- (void)dealloc {
+    // Unregister observer
+    NRESettings *settings = NRESettings.sharedSettings;
+    [settings removeObserver:self];
+
+    %orig;
+}
+
+- (void)layoutSubviews {
+    %orig;
+
+    if (self.overlayView) {
+        UIView *backgroundView = [self valueForKey:@"_backgroundView"];
+        self.overlayView.frame = backgroundView.bounds;
+    }
+}
+
+%new 
+- (void)settings:(NRESettings *)settings changedValueForKeyPath:(NSString *)keyPath {
+    if (![keyPath isEqualToString:@"enabled"]) {
+        return;
+    }
+
+    if (!settings.enabled) {
+        [self.overlayView removeFromSuperview];
+        self.overlayView = nil;
+
+        // Reshow tint
+        UIView *backgroundView = [self valueForKey:@"_backgroundView"];
+        backgroundView.hidden = NO;
+
+        return;
+    }
+
+    // Hide tint
+    UIView *backgroundView = [self valueForKey:@"_backgroundView"];
+    backgroundView.hidden = YES;
+
+    // Create overlay
+    self.overlayView = [%c(MTMaterialView) materialViewWithRecipe:MTMaterialRecipeNotificationsDark options:MTMaterialOptionsBaseOverlay | MTMaterialOptionsBlur];
+    [self.overlayView _setCornerRadius:backgroundView.layer.cornerRadius];
+    [self addSubview:self.overlayView];
+    [self sendSubviewToBack:self.overlayView];
+
+    [self setNeedsLayout];
+}
+
+%end

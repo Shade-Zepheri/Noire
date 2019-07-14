@@ -1,6 +1,6 @@
-#import <PlatterKit/PLExpandedPlatterView.h>
-
-@interface NCNotificationLongLookView : PLExpandedPlatterView <NRESettingsObserver>
+@interface SBFolderBackgroundView : UIView <NRESettingsObserver> {
+    UIView *_tintView;
+}
 
 // Added by me
 @property (strong, nonatomic) MTMaterialView *overlayView;
