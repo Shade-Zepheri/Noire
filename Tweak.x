@@ -266,11 +266,12 @@
 %end
 
 %hook WGShortLookStyleButton
-%property (retain, nonatomic) PLPlatterView *darkeningView;
+%property (retain, nonatomic) MTMaterialView *overlayView;
 
 - (instancetype)init {
     self = %orig;
     if (self) {
+        // Register observer
         NRESettings *settings = NRESettings.sharedSettings;
         [settings addObserver:self];
     }
@@ -289,66 +290,54 @@
 - (void)layoutSubviews {
     %orig;
 
-    if (self.darkeningView) {
-        self.darkeningView.frame = self.bounds;
+    if (self.overlayView) {
+        self.overlayView.frame = self.bounds;
     }
 }
 
 - (void)_configureBackgroundViewIfNecessary {
     %orig;
 
-    // Configure platterview
     NRESettings *settings = NRESettings.sharedSettings;
     if (!settings.enabled) {
         return;
     }
 
-    // Set actual view hidden
+    // Hide original
     MTMaterialView *backgroundView = [self valueForKey:@"_backgroundView"];
     backgroundView.hidden = YES;
 
-    if (self.darkeningView) {
+    if (self.overlayView) {
         return;
     }
 
-    self.darkeningView = [[%c(PLPlatterView) alloc] initWithRecipe:MTMaterialRecipeNotificationsDark options:MTMaterialOptionsBlur];
-    self.darkeningView.cornerRadius = [self _backgroundViewCornerRadius];
-    [self addSubview:self.darkeningView];
-
-    // Update overlay
-    MTMaterialView *overlayView = self.darkeningView.mainOverlayView;
-    [overlayView transitionToRecipe:MTMaterialRecipeNotificationsDark options:MTMaterialOptionsBaseOverlay weighting:backgroundView.weighting];
+    // Create overlay
+    self.overlayView = [%c(MTMaterialView) materialViewWithRecipe:MTMaterialRecipeNotificationsDark options:MTMaterialOptionsBaseOverlay | MTMaterialOptionsBlur];
+    [self.overlayView _setCornerRadius:backgroundView.cornerRadius];
+    [self addSubview:self.overlayView];
+    [self sendSubviewToBack:self.overlayView];
 }
 
 - (void)_configureTitleLabelIfNecessary {
     %orig;
 
-    // Set proper styling
     NRESettings *settings = NRESettings.sharedSettings;
     if (!settings.enabled) {
         return;
     }
 
+    // Set proper styling
     UILabel *titleLabel = [self valueForKey:@"_titleLabel"];
+    MTVibrantStyling *styling = [self.overlayView.vibrantStylingProvider vibrantStylingWithStyle:1];
     [titleLabel mt_removeAllVibrantStyling];
-    MTVibrantStyling *styling = [self.darkeningView.vibrantStylingProvider vibrantStylingWithStyle:1];
     [titleLabel mt_applyVibrantStyling:styling];
-    [self.darkeningView.customContentView addSubview:titleLabel];
-}
-
-- (CGFloat)_backgroundViewCornerRadius {
-    // Set so checks platterview so it can be properly set
-
-    MTMaterialView *backgroundView = [self valueForKey:@"_backgroundView"];
-    // return (!self.darkeningView) ? backgroundView.cornerRadius : self.darkeningView.cornerRadius;
-    return backgroundView.cornerRadius;
 }
 
 - (void)_setBackgroundViewCornerRadius:(CGFloat)cornerRadius {
     %orig;
 
-    if (self.darkeningView) {
-        self.darkeningView.cornerRadius = cornerRadius;
+    if (self.overlayView) {
+        [self.overlayView _setCornerRadius:cornerRadius];
     }
 }
 
@@ -360,43 +349,41 @@
 
     MTMaterialView *backgroundView = [self valueForKey:@"_backgroundView"];
     if (!settings.enabled) {
-        if (self.darkeningView) {
-            [self.darkeningView removeFromSuperview];
-            self.darkeningView = nil;
+        // Remove overlay if exists
+        if (self.overlayView) {
+        [self.overlayView removeFromSuperview];
+        self.overlayView = nil;
         }
 
+        // Reset view
         backgroundView.hidden = NO;
 
-        // Update label styling
         UILabel *titleLabel = [self valueForKey:@"_titleLabel"];
-        [titleLabel mt_removeAllVibrantStyling];
         MTVibrantStyling *styling = [backgroundView.vibrantStylingProvider vibrantStylingWithStyle:1];
+        [titleLabel mt_removeAllVibrantStyling];
         [titleLabel mt_applyVibrantStyling:styling];
-        [backgroundView addSubview:titleLabel];
 
-        [self setNeedsLayout];
+        [self invalidateCachedGeometry];
         return;
     }
 
-    if (self.darkeningView) {
-        return;
-    }
+    // Hide view
+    backgroundView.hidden = YES;
 
-    self.darkeningView = [[%c(PLPlatterView) alloc] initWithRecipe:MTMaterialRecipeNotificationsDark options:MTMaterialOptionsBlur];
-    self.darkeningView.cornerRadius = [self _backgroundViewCornerRadius];
-    [self addSubview:self.darkeningView];
+    // Create overlay
+    self.overlayView = [%c(MTMaterialView) materialViewWithRecipe:MTMaterialRecipeNotificationsDark options:MTMaterialOptionsBaseOverlay | MTMaterialOptionsBlur];
+    [self.overlayView _setCornerRadius:backgroundView.cornerRadius];
+    [self addSubview:self.overlayView];
+    [self sendSubviewToBack:self.overlayView];
 
-    MTMaterialView *overlayView = self.darkeningView.mainOverlayView;
-    [overlayView transitionToRecipe:MTMaterialRecipeNotificationsDark options:MTMaterialOptionsBaseOverlay weighting:backgroundView.weighting];
-
-    // Update label styling
+    // Update label
     UILabel *titleLabel = [self valueForKey:@"_titleLabel"];
+    MTVibrantStyling *styling = [backgroundView.vibrantStylingProvider vibrantStylingWithStyle:1];
     [titleLabel mt_removeAllVibrantStyling];
-    MTVibrantStyling *styling = [self.darkeningView.vibrantStylingProvider vibrantStylingWithStyle:1];
     [titleLabel mt_applyVibrantStyling:styling];
-    [self.darkeningView.customContentView addSubview:titleLabel];
 
-    [self setNeedsLayout];
+    // Force relayout
+    [self invalidateCachedGeometry];
 }
 
 %end
@@ -764,7 +751,6 @@
             [self.overlayView _setCornerRadius:backgroundView.layer.cornerRadius];
             [self addSubview:self.overlayView];
             [self sendSubviewToBack:self.overlayView];
-
         }
     } 
 

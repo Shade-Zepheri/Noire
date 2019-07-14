@@ -11,7 +11,7 @@
 - (void)_setBackgroundViewCornerRadius:(CGFloat)cornerRadius;
 
 // Added by me
-@property (strong, nonatomic) PLPlatterView *darkeningView;
+@property (strong, nonatomic) MTMaterialView *overlayView;
 - (void)settings:(NRESettings *)settings changedValueForKeyPath:(NSString *)keyPath;
 
 @end
