@@ -10,7 +10,6 @@
 %property (retain, nonatomic) NRESettings *settings;
 
 - (void)viewDidLoad {
-    HBLogWarn(@"viewDidLoad");
     %orig;
 
     // Register for settings changes
