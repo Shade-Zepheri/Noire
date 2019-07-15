@@ -12,5 +12,6 @@
 __BEGIN_DECLS
 
 CGFloat CCUISliderExpandedContentModuleWidth();
+CGFloat CCUISliderExpandedContentModuleHeight();
 
 __END_DECLS

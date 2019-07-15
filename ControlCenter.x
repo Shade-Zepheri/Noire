@@ -56,23 +56,27 @@
     // Update size
     self.noireButton.view.frame = self.nightShiftButton.view.bounds;
 
+    CGFloat centerY = self.nightShiftButton.view.center.y;
+    CGFloat sliderInset = (CGRectGetHeight(self.view.bounds) - CCUISliderExpandedContentModuleHeight()) / 4.0;
+    CGFloat buttonInset = CGRectGetWidth(self.nightShiftButton.view.bounds) / 2.0;
+    CGFloat width = CGRectGetWidth(self.view.bounds);
     if (self.trueToneButton) {
         // Layout for 3 toggles
-        CGFloat centerY = self.nightShiftButton.view.center.y;
-        CGFloat width = CGRectGetWidth(self.view.bounds);
-        CGFloat buttonInset = CGRectGetWidth(self.nightShiftButton.view.bounds) / 2;
-        CGFloat sliderWidth = CCUISliderExpandedContentModuleWidth();
-        CGFloat sliderInset = (width - sliderWidth) / 2.0;
+        CGFloat desiredInset = sliderInset - buttonInset + 3.0;
 
         // Put ours on the left side
-        self.noireButton.view.center = CGPointMake(sliderInset - buttonInset, centerY);
+        self.noireButton.view.center = CGPointMake(desiredInset, centerY);
         
         // Realign truetone and night shift
         self.nightShiftButton.view.center = CGPointMake(width / 2.0, centerY);
-        self.trueToneButton.view.center = CGPointMake((width - sliderInset) + buttonInset, centerY);
+        self.trueToneButton.view.center = CGPointMake((width - desiredInset), centerY);
+        return;
     }
 
     // Layout for 2 toggles
+    CGFloat desiredInset = sliderInset + 3.0;
+    self.noireButton.view.center = CGPointMake(desiredInset, centerY);
+    self.nightShiftButton.view.center = CGPointMake((width - desiredInset), centerY);
 }
 
 %new 
@@ -147,8 +151,11 @@
             // Nothing to configure
             continue;
         }
-
+        CGFloat initialAlpha = alternateStateBackgroundView.alpha;
         [alternateStateBackgroundView transitionToRecipe:MTMaterialRecipeNotificationsDark options:MTMaterialOptionsSecondaryOverlay weighting:alternateStateBackgroundView.weighting];
+
+        // Fix alpha
+        alternateStateBackgroundView.alpha = initialAlpha;
     }
 }
 
@@ -163,10 +170,18 @@
         CCUILabeledRoundButton *buttonContainer = buttonViewController.buttonContainer;
         CCUIRoundButton *buttonView = buttonContainer.buttonView;
         MTMaterialView *alternateStateBackgroundView = buttonView.alternateSelectedStateBackgroundView;
+        if (!alternateStateBackgroundView) {
+            // Nothing to configure
+            continue;
+        }
 
+        CGFloat initialAlpha = alternateStateBackgroundView.alpha;
         MTMaterialRecipe recipe = settings.enabled ? MTMaterialRecipeNotificationsDark : MTMaterialRecipeControlCenterModules;
         MTMaterialOptions options = settings.enabled ? MTMaterialOptionsSecondaryOverlay : MTMaterialOptionsPrimaryOverlay;
         [alternateStateBackgroundView transitionToRecipe:recipe options:options weighting:alternateStateBackgroundView.weighting];
+
+        // Fix alpha
+        alternateStateBackgroundView.alpha = initialAlpha;
     }
 }
 
