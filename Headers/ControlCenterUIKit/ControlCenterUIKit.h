@@ -6,3 +6,11 @@
 #import "CCUILabeledRoundButtonViewController.h"
 #import "CCUIModuleSliderView.h"
 #import "CCUIRoundButton.h"
+
+#include <sys/cdefs.h>
+
+__BEGIN_DECLS
+
+CGFloat CCUISliderExpandedContentModuleWidth();
+
+__END_DECLS

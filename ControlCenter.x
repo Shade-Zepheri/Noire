@@ -53,11 +53,23 @@
 - (void)viewWillLayoutSubviews {
     %orig;
 
-    // Update placement and size
+    // Update size
     self.noireButton.view.frame = self.nightShiftButton.view.bounds;
 
     if (self.trueToneButton) {
         // Layout for 3 toggles
+        CGFloat centerY = self.nightShiftButton.view.center.y;
+        CGFloat width = CGRectGetWidth(self.view.bounds);
+        CGFloat buttonInset = CGRectGetWidth(self.nightShiftButton.view.bounds) / 2;
+        CGFloat sliderWidth = CCUISliderExpandedContentModuleWidth();
+        CGFloat sliderInset = (width - sliderWidth) / 2.0;
+
+        // Put ours on the left side
+        self.noireButton.view.center = CGPointMake(sliderInset - buttonInset, centerY);
+        
+        // Realign truetone and night shift
+        self.nightShiftButton.view.center = CGPointMake(width / 2.0, centerY);
+        self.trueToneButton.view.center = CGPointMake((width - sliderInset) + buttonInset, centerY);
     }
 
     // Layout for 2 toggles
