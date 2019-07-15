@@ -1,9 +1,11 @@
 Package: com.shade.noire
 Name: Noire
-Depends: mobilesubstrate
+Depends: mobilesubstrate, preferenceloader, ws.hbang.common
 Version: 0.1
 Architecture: iphoneos-arm
 Description: Free iOS 12 Night Mode
+Depiction: https://shade-zepheri.github.io/depic/index.html?p=com.shade.noire
+SileoDepiction: https://shade-zepheri.github.io/depic/com.shade.noire/sileo.json
 Maintainer: Shade Zepheri <ziroalpha@gmail.com>
 Author: Shade Zepheri <ziroalpha@gmail.com>
 Section: Tweaks
