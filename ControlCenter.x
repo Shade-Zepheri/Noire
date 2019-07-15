@@ -4,7 +4,11 @@
 #import <MaterialKit/MaterialKit.h>
 #import <HBLog.h>
 
-%group Toggle
+%group Modules
+// These must be in here in order to not hook too early or late;
+
+#pragma mark - Toggle
+
 %hook CCUIDisplayBackgroundViewController
 %property (retain, nonatomic) CCUILabeledRoundButtonViewController *noireButton;
 %property (retain, nonatomic) NRESettings *settings;
@@ -88,11 +92,10 @@
 }
 
 %end
-%end
 
-%group Modules
-// Must be in here in order to not hook to early or late;
-// Theme disabled toggles light theme
+
+#pragma mark - Control Center theming
+
 %hook CCUIConnectivityModuleViewController
 
 - (instancetype)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil {
@@ -158,13 +161,14 @@
 %end
 %end
 
+#pragma mark - Initializer
+
 %hook CCUIModuleInstanceManager
 
 - (void)_updateModuleInstances {
     %orig;
 
-    // Load hooks
-    %init(Toggle);
+    // Load hooks when modules are loaded
     %init(Modules);
 }
 
