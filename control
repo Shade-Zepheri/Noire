@@ -1,7 +1,7 @@
 Package: com.shade.noire
 Name: Noire
 Depends: mobilesubstrate, preferenceloader, ws.hbang.common
-Version: 0.1
+Version: 0.1.1
 Architecture: iphoneos-arm
 Description: Free iOS 12 Night Mode
 Depiction: https://shade-zepheri.github.io/depic/index.html?p=com.shade.noire
