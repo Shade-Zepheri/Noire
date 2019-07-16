@@ -5,7 +5,7 @@
 #import <SpringBoard/SpringBoard+Private.h>
 #import <SpringBoardUI/SpringBoardUI.h>
 #import <UIKit/UIKit+Private.h>
-#import <UserNotificationsUIKit/NCNotificationLongLookView+Private.h>
+#import <UserNotificationsUIKit/UserNotificationsUIKit.h>
 #import <Widgets/Widgets.h>
 #import <HBLog.h>
 
