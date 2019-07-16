@@ -52,8 +52,9 @@
 
 %hook NCNotificationOptions
 
+// Its really that easy apparently
 - (BOOL)prefersDarkAppearance {
-    return YES;
+    return NRESettings.sharedSettings.enabled || %orig;
 }
 
 %end
