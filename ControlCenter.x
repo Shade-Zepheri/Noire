@@ -138,7 +138,8 @@
 
     // Check if enabled
     NRESettings *settings = NRESettings.sharedSettings;
-    if (!settings.enabled) {
+    BOOL enabled = settings.enabled && settings.controlCenter;
+    if (!enabled) {
         return;
     }
 
@@ -161,11 +162,12 @@
 
 %new 
 - (void)settings:(NRESettings *)settings changedValueForKeyPath:(NSString *)keyPath {
-    if (![keyPath isEqualToString:@"enabled"]) {
+    if (![keyPath isEqualToString:@"enabled"] && ![keyPath isEqualToString:@"controlcenter"]) {
         return;
     }
 
     // Update theme
+    BOOL enabled = settings.enabled && settings.controlCenter;
     for (CCUILabeledRoundButtonViewController *buttonViewController in self.buttonViewControllers) {
         CCUILabeledRoundButton *buttonContainer = buttonViewController.buttonContainer;
         CCUIRoundButton *buttonView = buttonContainer.buttonView;
@@ -176,8 +178,8 @@
         }
 
         CGFloat initialAlpha = alternateStateBackgroundView.alpha;
-        MTMaterialRecipe recipe = settings.enabled ? MTMaterialRecipeNotificationsDark : MTMaterialRecipeControlCenterModules;
-        MTMaterialOptions options = settings.enabled ? MTMaterialOptionsSecondaryOverlay : MTMaterialOptionsPrimaryOverlay;
+        MTMaterialRecipe recipe = enabled ? MTMaterialRecipeNotificationsDark : MTMaterialRecipeControlCenterModules;
+        MTMaterialOptions options = enabled ? MTMaterialOptionsSecondaryOverlay : MTMaterialOptionsPrimaryOverlay;
         [alternateStateBackgroundView transitionToRecipe:recipe options:options weighting:alternateStateBackgroundView.weighting];
 
         // Fix alpha

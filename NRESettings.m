@@ -28,6 +28,13 @@
 
         [_preferences registerBool:&_enabled default:NO forKey:NREPreferencesEnabledKey];
 
+        [_preferences registerBool:&_forceTouch default:NO forKey:NREPreferences3DTouchKey];
+        [_preferences registerBool:&_controlCenter default:NO forKey:NREPreferencesControlCenterKey];
+        [_preferences registerBool:&_dock default:NO forKey:NREPreferencesDockKey];
+        [_preferences registerBool:&_folders default:NO forKey:NREPreferencesFoldersKey];
+        [_preferences registerBool:&_notifications default:NO forKey:NREPreferencesNotificationsKey];
+        [_preferences registerBool:&_widgets default:NO forKey:NREPreferencesWidgetsKey];
+
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(preferencesWereUpdated) name:HBPreferencesDidChangeNotification object:nil];
         [self preferencesWereUpdated];
     }

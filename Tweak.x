@@ -16,10 +16,13 @@
 - (instancetype)initWithDockListView:(UIView *)dockListView forSnapshot:(BOOL)snapshot {
     self = %orig;
     if (self) {
+        // Register observer
         NRESettings *settings = NRESettings.sharedSettings;
         [settings addObserver:self];
 
-        NSInteger style = settings.enabled ? 14 : 12;
+        // Apply tweak
+        BOOL enabled = settings.enabled && settings.dock;
+        NSInteger style = enabled ? 14 : 12;
         SBWallpaperEffectView *effectView = [self valueForKey:@"_backgroundView"];
         [effectView setStyle:style];
     }
@@ -37,11 +40,13 @@
 
 %new
 - (void)settings:(NRESettings *)settings changedValueForKeyPath:(NSString *)keyPath {
-    if (![keyPath isEqualToString:@"enabled"]) {
+    if (![keyPath isEqualToString:@"enabled"] && ![keyPath isEqualToString:@"dock"]) {
         return;
     }
 
-    NSInteger style = settings.enabled ? 14 : 12;
+    // Apply theming
+    BOOL enabled = settings.enabled && settings.dock;
+    NSInteger style = enabled ? 14 : 12;
     SBWallpaperEffectView *effectView = [self valueForKey:@"_backgroundView"];
     [effectView setStyle:style];
 }
@@ -54,7 +59,9 @@
 
 // Its really that easy apparently
 - (BOOL)prefersDarkAppearance {
-    return NRESettings.sharedSettings.enabled || %orig;
+    NRESettings *settings = NRESettings.sharedSettings;
+    BOOL enabled = settings.enabled && settings.notifications;
+    return enabled || %orig;
 }
 
 %end
@@ -65,6 +72,7 @@
 - (instancetype)init {
     self = %orig;
     if (self) {
+        // Register observer
         NRESettings *settings = NRESettings.sharedSettings;
         [settings addObserver:self];
     }
@@ -83,8 +91,10 @@
 - (void)_configureActionsBackgroundViewIfNecessaryWithActions:(NSArray *)actions {
     %orig;
 
+    // Check if enabled
     NRESettings *settings = NRESettings.sharedSettings;
-    if (!settings.enabled) {
+    BOOL enabled = settings.enabled && settings.notifications;
+    if (!enabled) {
         return;
     }
 
@@ -101,6 +111,11 @@
 - (void)_layoutActionsView {
     %orig;
 
+    // Check if overlay
+    if (!self.overlayView) {
+        return;
+    }
+
     // Update frames
     MTMaterialView *backgroundView = [self valueForKey:@"_actionsBackgroundView"];
     self.overlayView.frame = backgroundView.frame;
@@ -108,12 +123,13 @@
 
 %new
 - (void)settings:(NRESettings *)settings changedValueForKeyPath:(NSString *)keyPath {
-    if (![keyPath isEqualToString:@"enabled"]) {
+    if (![keyPath isEqualToString:@"enabled"] && ![keyPath isEqualToString:@"notifications"]) {
         return;
     }
 
+    BOOL enabled = settings.enabled && settings.notifications;
     MTMaterialView *backgroundView = [self valueForKey:@"_actionsBackgroundView"];
-    if (!settings.enabled) {
+    if (!enabled) {
         if (self.overlayView) {
             [self.overlayView removeFromSuperview];
             self.overlayView = nil;
@@ -125,6 +141,7 @@
         return;
     }
 
+    // Apply theming
     [backgroundView transitionToRecipe:MTMaterialRecipeNotificationsDark options:MTMaterialOptionsBlur weighting:backgroundView.weighting];
 
     self.overlayView = [%c(MTMaterialView) materialViewWithRecipe:MTMaterialRecipeNotificationsDark options:MTMaterialOptionsBaseOverlay];
@@ -138,16 +155,15 @@
 %hook PLGlyphControl
 
 - (instancetype)initWithMaterialRecipe:(MTMaterialRecipe)recipe backgroundMaterialOptions:(MTMaterialOptions)backgroundMaterialOptions overlayMaterialOptions:(MTMaterialOptions)overlayMaterialOptions {
-    self = %orig;
+    // Intercept and modify recipe
+    NRESettings *settings = NRESettings.sharedSettings;
+    BOOL enabled = settings.enabled && settings.notifications;
+    recipe = enabled ? MTMaterialRecipeNotificationsDark : MTMaterialRecipeNotifications;
+    overlayMaterialOptions = enabled ? MTMaterialOptionsBaseOverlay : MTMaterialOptionsPrimaryOverlay;
+    self = %orig(recipe, backgroundMaterialOptions, overlayMaterialOptions);
     if (self) {
-        NRESettings *settings = NRESettings.sharedSettings;
+        // Register observer
         [settings addObserver:self];
-
-        if (settings.enabled) {
-            // Update ivars with darkmode values
-            [self setValue:@(MTMaterialRecipeNotificationsDark) forKey:@"_materialRecipe"];
-            [self setValue:@(MTMaterialOptionsBaseOverlay) forKey:@"_overlayMaterialOptions"];
-        }
     }
 
     return self;
@@ -172,12 +188,13 @@
 
 %new
 - (void)settings:(NRESettings *)settings changedValueForKeyPath:(NSString *)keyPath {
-    if (!settings.enabled && ![keyPath isEqualToString:@"enabled"]) {
+    if (![keyPath isEqualToString:@"enabled"] && ![keyPath isEqualToString:@"notifications"]) {
         return;
     }
 
-    MTMaterialRecipe recipe = settings.enabled ? MTMaterialRecipeNotificationsDark : MTMaterialRecipeNotifications;
-    MTMaterialOptions overlayMaterialOptions = settings.enabled ? MTMaterialOptionsBaseOverlay : MTMaterialOptionsPrimaryOverlay;
+    BOOL enabled = settings.enabled && settings.notifications;
+    MTMaterialRecipe recipe = enabled ? MTMaterialRecipeNotificationsDark : MTMaterialRecipeNotifications;
+    MTMaterialOptions overlayMaterialOptions = enabled ? MTMaterialOptionsBaseOverlay : MTMaterialOptionsPrimaryOverlay;
 
     // Update ivars with values
     [self setValue:@(recipe) forKey:@"_materialRecipe"];
@@ -195,6 +212,7 @@
 - (instancetype)initWithFrame:(CGRect)frame andCornerRadius:(CGFloat)cornerRadius {
     self = %orig;
     if (self) {
+        // Register observer
         NRESettings *settings = NRESettings.sharedSettings;
         [settings addObserver:self];
     }
@@ -214,7 +232,8 @@
     %orig;
     
     NRESettings *settings = NRESettings.sharedSettings;
-    if (self.recipe == MTMaterialRecipeNotificationsDark || !settings.enabled) {
+    BOOL enabled = settings.enabled && settings.widgets;
+    if (self.recipe == MTMaterialRecipeNotificationsDark || !enabled) {
         // Dont configure if already configured
         return;
     }
@@ -226,7 +245,7 @@
     self.sashHidden = YES;
 }
 
-- (void)updateWithRecipe:(NSInteger)recipe options:(NSUInteger)options {
+- (void)updateWithRecipe:(MTMaterialRecipe)recipe options:(MTMaterialOptions)options {
     // Bug: Apple doesn't recalculate the content view frame when updating the recipe
     // The content view assumes an incorrect frame
     [self setValue:@(NO) forKey:@"_didSetInitialCustomContentViewFrame"];
@@ -241,11 +260,12 @@
 
 %new
 - (void)settings:(NRESettings *)settings changedValueForKeyPath:(NSString *)keyPath {
-    if (!settings.enabled && ![keyPath isEqualToString:@"enabled"]) {
+    if (![keyPath isEqualToString:@"enabled"] && ![keyPath isEqualToString:@"widgets"]) {
         return;
     }
 
-    if (!settings.enabled) {
+    BOOL enabled = settings.enabled && settings.widgets;
+    if (!enabled) {
         [self updateWithRecipe:MTMaterialRecipeWidgetHosts options:MTMaterialOptionsGamma | MTMaterialOptionsBlur];
 
         UIView *overlayView = [self valueForKey:@"_headerOverlayView"];
@@ -257,6 +277,7 @@
         return;
     }
 
+    // Update theming
     [self updateWithRecipe:MTMaterialRecipeNotificationsDark options:MTMaterialOptionsBlur];
 
     UIView *overlayView = [self valueForKey:@"_headerOverlayView"];
@@ -300,7 +321,8 @@
     %orig;
 
     NRESettings *settings = NRESettings.sharedSettings;
-    if (!settings.enabled) {
+    BOOL enabled = settings.enabled && settings.widgets;
+    if (!enabled) {
         return;
     }
 
@@ -323,7 +345,8 @@
     %orig;
 
     NRESettings *settings = NRESettings.sharedSettings;
-    if (!settings.enabled) {
+    BOOL enabled = settings.enabled && settings.widgets;
+    if (!enabled) {
         return;
     }
 
@@ -344,16 +367,17 @@
 
 %new 
 - (void)settings:(NRESettings *)settings changedValueForKeyPath:(NSString *)keyPath {
-    if (!settings.enabled && ![keyPath isEqualToString:@"enabled"]) {
+    if (![keyPath isEqualToString:@"enabled"] && ![keyPath isEqualToString:@"widgets"]) {
         return;
     }
 
+    BOOL enabled = settings.enabled && settings.widgets;
     MTMaterialView *backgroundView = [self valueForKey:@"_backgroundView"];
-    if (!settings.enabled) {
+    if (!enabled) {
         // Remove overlay if exists
         if (self.overlayView) {
-        [self.overlayView removeFromSuperview];
-        self.overlayView = nil;
+            [self.overlayView removeFromSuperview];
+            self.overlayView = nil;
         }
 
         // Reset view
@@ -376,7 +400,7 @@
     [self.overlayView _setCornerRadius:backgroundView.cornerRadius];
     [self addSubview:self.overlayView];
     [self sendSubviewToBack:self.overlayView];
-
+    
     // Update label
     UILabel *titleLabel = [self valueForKey:@"_titleLabel"];
     MTVibrantStyling *styling = [backgroundView.vibrantStylingProvider vibrantStylingWithStyle:1];
@@ -397,6 +421,7 @@
 - (instancetype)initWithChildViewController:(UIViewController *)childViewController {
     self = %orig;
     if (self) {
+        // Register observer
         NRESettings *settings = NRESettings.sharedSettings;
         [settings addObserver:self];
     }
@@ -416,7 +441,8 @@
     %orig;
 
     NRESettings *settings = NRESettings.sharedSettings;
-    if (!settings.enabled) {
+    BOOL enabled = settings.enabled && settings.forceTouch;
+    if (!enabled) {
         return;
     }
 
@@ -457,6 +483,11 @@
 - (void)viewDidLayoutSubviews {
     %orig;
 
+    // Check if overlay
+    if (!self.overlayView) {
+        return;
+    }
+
     // Update frame
     MTMaterialView *backgroundView = [self backgroundMaterialView];
     self.overlayView.frame = backgroundView.bounds;
@@ -487,12 +518,13 @@
 
 %new 
 - (void)settings:(NRESettings *)settings changedValueForKeyPath:(NSString *)keyPath {
-    if (![keyPath isEqualToString:@"enabled"]) {
+    if (![keyPath isEqualToString:@"enabled"] && ![keyPath isEqualToString:@"3dtouch"]) {
         return;
     }
 
+    BOOL enabled = settings.enabled && settings.forceTouch;
     MTMaterialView *backgroundView = [self backgroundMaterialView];
-    if (!settings.enabled) {
+    if (!enabled) {
         if (self.overlayView) {
             [self.overlayView removeFromSuperview];
             self.overlayView = nil;
@@ -527,6 +559,7 @@
         return;
     }
 
+    // Apply theme
     [backgroundView transitionToRecipe:MTMaterialRecipeNotificationsDark options:MTMaterialOptionsBlur weighting:backgroundView.weighting];
 
     self.overlayView = [%c(MTMaterialView) materialViewWithRecipe:MTMaterialRecipeNotificationsDark options:MTMaterialOptionsBaseOverlay];
@@ -572,7 +605,8 @@
         NRESettings *settings = NRESettings.sharedSettings;
         [settings addObserver:self];
 
-        if (settings.enabled) {
+        BOOL enabled = settings.enabled && settings.controlCenter;
+        if (enabled) {
             // Theme overlay
             MTMaterialView *highlightView = [self valueForKey:@"_highlightedBackgroundView"];
             CGFloat initialAlpha = highlightView.alpha;
@@ -596,15 +630,16 @@
 
 %new 
 - (void)settings:(NRESettings *)settings changedValueForKeyPath:(NSString *)keyPath {
-    if (![keyPath isEqualToString:@"enabled"]) {
+    if (![keyPath isEqualToString:@"enabled"] && ![keyPath isEqualToString:@"controlcenter"]) {
         return;
     }
 
     // Update theme
+    BOOL enabled = settings.enabled && settings.controlCenter;
     MTMaterialView *highlightView = [self valueForKey:@"_highlightedBackgroundView"];
     CGFloat initialAlpha = highlightView.alpha;
-    MTMaterialRecipe recipe = settings.enabled ? MTMaterialRecipeNotificationsDark : MTMaterialRecipeControlCenterModules;
-    MTMaterialOptions options = settings.enabled ? MTMaterialOptionsSecondaryOverlay : MTMaterialOptionsPrimaryOverlay;
+    MTMaterialRecipe recipe = enabled ? MTMaterialRecipeNotificationsDark : MTMaterialRecipeControlCenterModules;
+    MTMaterialOptions options = enabled ? MTMaterialOptionsSecondaryOverlay : MTMaterialOptionsPrimaryOverlay;
     [highlightView transitionToRecipe:recipe options:options weighting:highlightView.weighting];
 
     // Fix alpha
@@ -624,7 +659,8 @@
         NRESettings *settings = NRESettings.sharedSettings;
         [settings addObserver:self];
 
-        if (settings.enabled) {
+        BOOL enabled = settings.enabled && settings.controlCenter;
+        if (enabled) {
             // Theme overlay
             MTMaterialView *backgroundView = [self valueForKey:@"_continuousValueBackgroundView"];
             [backgroundView transitionToRecipe:MTMaterialRecipeNotificationsDark options:MTMaterialOptionsSecondaryOverlay weighting:backgroundView.weighting];
@@ -644,14 +680,15 @@
 
 %new 
 - (void)settings:(NRESettings *)settings changedValueForKeyPath:(NSString *)keyPath {
-    if (![keyPath isEqualToString:@"enabled"]) {
+    if (![keyPath isEqualToString:@"enabled"] && ![keyPath isEqualToString:@"controlcenter"]) {
         return;
     }
 
     // Update theme
+    BOOL enabled = settings.enabled && settings.controlCenter;
     MTMaterialView *backgroundView = [self valueForKey:@"_continuousValueBackgroundView"];
-    MTMaterialRecipe recipe = settings.enabled ? MTMaterialRecipeNotificationsDark : MTMaterialRecipeControlCenterModules;
-    MTMaterialOptions options = settings.enabled ? MTMaterialOptionsSecondaryOverlay : MTMaterialOptionsPrimaryOverlay;
+    MTMaterialRecipe recipe = enabled ? MTMaterialRecipeNotificationsDark : MTMaterialRecipeControlCenterModules;
+    MTMaterialOptions options = enabled ? MTMaterialOptionsSecondaryOverlay : MTMaterialOptionsPrimaryOverlay;
     [backgroundView transitionToRecipe:recipe options:options weighting:backgroundView.weighting];
 
     [self setNeedsLayout];
@@ -671,7 +708,8 @@
         NRESettings *settings = NRESettings.sharedSettings;
         [settings addObserver:self];
 
-        if (settings.enabled) {
+        BOOL enabled = settings.enabled && settings.folders;
+        if (enabled) {
             // Can create here because calling orig stack
             self.overlayView = [%c(MTMaterialView) materialViewWithRecipe:MTMaterialRecipeNotificationsDark options:MTMaterialOptionsBaseOverlay | MTMaterialOptionsBlur];
             [self addSubview:self.overlayView];
@@ -704,14 +742,15 @@
 
 %new 
 - (void)settings:(NRESettings *)settings changedValueForKeyPath:(NSString *)keyPath {
-    if (![keyPath isEqualToString:@"enabled"]) {
+    if (![keyPath isEqualToString:@"enabled"] && ![keyPath isEqualToString:@"folders"]) {
         return;
     }
 
-    if (!settings.enabled) {
+    BOOL enabled = settings.enabled && settings.folders;
+    if (!enabled) {
         if (self.overlayView) {
-        [self.overlayView removeFromSuperview];
-        self.overlayView = nil;
+            [self.overlayView removeFromSuperview];
+            self.overlayView = nil;
         }
 
         // Reshow tint
@@ -744,7 +783,8 @@
         NRESettings *settings = NRESettings.sharedSettings;
         [settings addObserver:self];
 
-        if (settings.enabled) {
+        BOOL enabled = settings.enabled && settings.folders;
+        if (enabled) {
             // Hide orig tint view
             UIView *backgroundView = [self valueForKey:@"_backgroundView"];
             backgroundView.hidden = YES;
@@ -779,14 +819,15 @@
 
 %new 
 - (void)settings:(NRESettings *)settings changedValueForKeyPath:(NSString *)keyPath {
-    if (![keyPath isEqualToString:@"enabled"]) {
+    if (![keyPath isEqualToString:@"enabled"] && ![keyPath isEqualToString:@"folders"]) {
         return;
     }
 
-    if (!settings.enabled) {
+    BOOL enabled = settings.enabled && settings.folders;
+    if (!enabled) {
         if (self.overlayView) {
-        [self.overlayView removeFromSuperview];
-        self.overlayView = nil;
+            [self.overlayView removeFromSuperview];
+            self.overlayView = nil;
         }
 
         // Reshow tint

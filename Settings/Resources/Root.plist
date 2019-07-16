@@ -13,8 +13,6 @@
             <string>com.shade.noire</string>
             <key>key</key>
             <string>enabled</string>
-            <key>icon</key>
-			<string>enable.png</string>
             <key>label</key>
             <string>Enable</string>
             <key>PostNotification</key>
@@ -32,6 +30,94 @@
 			<key>cell</key>
 			<string>PSGroupCell</string>
 		</dict>
+		<dict>
+            <key>cell</key>
+            <string>PSSwitchCell</string>
+            <key>default</key>
+            <false/>
+            <key>defaults</key>
+            <string>com.shade.noire</string>
+            <key>key</key>
+            <string>3dtouch</string>
+            <key>label</key>
+            <string>3D Touch</string>
+            <key>PostNotification</key>
+            <string>com.shade.noire/ReloadPrefs</string>
+        </dict>
+		<dict>
+            <key>cell</key>
+            <string>PSSwitchCell</string>
+            <key>default</key>
+            <false/>
+            <key>defaults</key>
+            <string>com.shade.noire</string>
+            <key>key</key>
+            <string>controlcenter</string>
+            <key>label</key>
+            <string>Control Center</string>
+            <key>PostNotification</key>
+            <string>com.shade.noire/ReloadPrefs</string>
+        </dict>
+		<dict>
+            <key>cell</key>
+            <string>PSSwitchCell</string>
+            <key>default</key>
+            <false/>
+            <key>defaults</key>
+            <string>com.shade.noire</string>
+            <key>key</key>
+            <string>dock</string>
+            <key>label</key>
+            <string>Dock</string>
+            <key>PostNotification</key>
+            <string>com.shade.noire/ReloadPrefs</string>
+        </dict>
+		<dict>
+            <key>cell</key>
+            <string>PSSwitchCell</string>
+            <key>default</key>
+            <false/>
+            <key>defaults</key>
+            <string>com.shade.noire</string>
+            <key>key</key>
+            <string>folders</string>
+            <key>label</key>
+            <string>Folders</string>
+            <key>PostNotification</key>
+            <string>com.shade.noire/ReloadPrefs</string>
+        </dict>
+		<dict>
+            <key>cell</key>
+            <string>PSSwitchCell</string>
+            <key>default</key>
+            <false/>
+            <key>defaults</key>
+            <string>com.shade.noire</string>
+            <key>key</key>
+            <string>notifications</string>
+            <key>label</key>
+            <string>Notifications</string>
+            <key>PostNotification</key>
+            <string>com.shade.noire/ReloadPrefs</string>
+        </dict>
+		<dict>
+            <key>cell</key>
+            <string>PSSwitchCell</string>
+            <key>default</key>
+            <false/>
+            <key>defaults</key>
+            <string>com.shade.noire</string>
+            <key>key</key>
+            <string>widgets</string>
+            <key>label</key>
+            <string>Widgets</string>
+            <key>PostNotification</key>
+            <string>com.shade.noire/ReloadPrefs</string>
+        </dict>
+        <dict>
+            <key>cell</key>
+            <string>PSGroupCell</string>
+        </dict>
 		<dict>
 			<key>cellClass</key>
 			<string>HBLinkTableCell</string>
