@@ -20,7 +20,7 @@
         HBAppearanceSettings *appearanceSettings = [[HBAppearanceSettings alloc] init];
         appearanceSettings.tintColor = [UIColor colorWithRed:0.07 green:0.07 blue:0.07 alpha:1.0];
         appearanceSettings.navigationBarTintColor = [UIColor whiteColor];
-        appearanceSettings.navigationBarTitleColor = [UIColor redColor];
+        appearanceSettings.navigationBarTitleColor = [UIColor whiteColor];
         appearanceSettings.navigationBarBackgroundColor = [UIColor colorWithRed:0.07 green:0.07 blue:0.07 alpha:1.0];
         appearanceSettings.statusBarTintColor = [UIColor whiteColor];
         appearanceSettings.translucentNavigationBar = NO;
@@ -50,6 +50,23 @@
     [self.headerImageView.bottomAnchor constraintEqualToAnchor:headerContainerView.bottomAnchor];
 
     self.table.tableHeaderView = headerContainerView;
+}
+
+- (void)viewDidAppear:(BOOL)animated {
+    [super viewDidAppear:animated];
+
+    // Get rid of shadow
+    self.realNavigationController.navigationBar.shadowImage = [[UIImage alloc] init];
+
+    // Since cephei broke
+    self.realNavigationController.navigationBar.titleTextAttributes = @{NSForegroundColorAttributeName: [UIColor whiteColor]};
+}
+
+- (void)viewWillDisappear:(BOOL)animated {
+    [super viewWillDisappear:animated];
+
+    // Reset color
+    self.realNavigationController.navigationBar.titleTextAttributes = @{NSForegroundColorAttributeName: [UIColor blackColor]};
 }
 
 #pragma mark - UIScrollViewDelegate
