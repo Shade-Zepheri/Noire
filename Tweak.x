@@ -66,6 +66,44 @@
 
 %end
 
+%hook NCNotificationViewControllerView
+
+- (instancetype)initWithFrame:(CGRect)frame {
+    self = %orig;
+    if (self) {
+        // Register observer
+        NRESettings *settings = NRESettings.sharedSettings;
+        [settings addObserver:self];
+    } 
+
+    return self;
+}
+
+- (void)dealloc {
+    // Unregister observer
+    NRESettings *settings = NRESettings.sharedSettings;
+    [settings removeObserver:self];
+
+    %orig;
+}
+
+- (void)_configureStackedPlatters {
+    %orig;
+
+    // Update stacked platters
+    NSArray<PLPlatterView *> *platterViews = [self valueForKey:@"_stackedPlatters"];
+    for (PLPlatterView *platterView in platterViews) {
+        // Update recipe
+        [platterView updateWithRecipe:MTMaterialRecipeNotificationsDark options:MTMaterialOptionsBlur];
+
+        // Update platter overlay
+        MTMaterialView *mainOverlayView = platterView.mainOverlayView;
+        [mainOverlayView transitionToRecipe:MTMaterialRecipeNotificationsDark options:MTMaterialOptionsBaseOverlay weighting:mainOverlayView.weighting];
+    } 
+}
+
+%end
+
 %hook NCNotificationLongLookView
 %property (retain, nonatomic) MTMaterialView *overlayView;
 
