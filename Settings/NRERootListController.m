@@ -44,10 +44,10 @@
     [headerContainerView addSubview:self.headerImageView];
 
     // Constraint up
-    [self.headerImageView.topAnchor constraintEqualToAnchor:headerContainerView.topAnchor];
-    [self.headerImageView.leadingAnchor constraintEqualToAnchor:headerContainerView.leadingAnchor];
-    [self.headerImageView.trailingAnchor constraintEqualToAnchor:headerContainerView.trailingAnchor];
-    [self.headerImageView.bottomAnchor constraintEqualToAnchor:headerContainerView.bottomAnchor];
+    [self.headerImageView.topAnchor constraintEqualToAnchor:headerContainerView.topAnchor].active = YES;
+    [self.headerImageView.leadingAnchor constraintEqualToAnchor:headerContainerView.leadingAnchor].active = YES;
+    [self.headerImageView.trailingAnchor constraintEqualToAnchor:headerContainerView.trailingAnchor].active = YES;
+    [self.headerImageView.bottomAnchor constraintEqualToAnchor:headerContainerView.bottomAnchor].active = YES;
 
     self.table.tableHeaderView = headerContainerView;
 }
