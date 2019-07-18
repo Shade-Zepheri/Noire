@@ -90,6 +90,13 @@
 - (void)_configureStackedPlatters {
     %orig;
 
+    // Check if enabled
+    NRESettings *settings = NRESettings.sharedSettings;
+    BOOL enabled = settings.enabled && settings.notifications;
+    if (!enabled) {
+        return;
+    }
+
     // Update stacked platters
     NSArray<PLPlatterView *> *platterViews = [self valueForKey:@"_stackedPlatters"];
     for (PLPlatterView *platterView in platterViews) {
@@ -100,6 +107,31 @@
         MTMaterialView *mainOverlayView = platterView.mainOverlayView;
         [mainOverlayView transitionToRecipe:MTMaterialRecipeNotificationsDark options:MTMaterialOptionsBaseOverlay weighting:mainOverlayView.weighting];
     } 
+}
+
+%new
+- (void)settings:(NRESettings *)settings changedValueForKeyPath:(NSString *)keyPath {
+    if (![keyPath isEqualToString:@"enabled"] && ![keyPath isEqualToString:@"notifications"]) {
+        return;
+    }
+
+    // Determine recipes
+    BOOL enabled = settings.enabled && settings.notifications;
+    MTMaterialRecipe recipe = enabled ? MTMaterialRecipeNotificationsDark : MTMaterialRecipeNotifications;
+
+    // Apply theming
+    NSArray<PLPlatterView *> *platterViews = [self valueForKey:@"_stackedPlatters"];
+    for (PLPlatterView *platterView in platterViews) {
+        [platterView updateWithRecipe:recipe options:MTMaterialOptionsBlur];
+
+        if (!enabled) {
+            continue;
+        }
+
+        // Fix overlay
+        MTMaterialView *mainOverlayView = platterView.mainOverlayView;
+        [mainOverlayView transitionToRecipe:MTMaterialRecipeNotificationsDark options:MTMaterialOptionsBaseOverlay weighting:mainOverlayView.weighting];
+    }
 }
 
 %end
