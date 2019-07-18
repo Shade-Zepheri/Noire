@@ -1,4 +1,4 @@
-#include "NRERootListController.h"
+#import "NRERootListController.h"
 #import <CepheiPrefs/HBSupportController.h>
 #import <UIKit/UIImage+Private.h>
 #import <TechSupport/TSContactViewController.h>
@@ -20,13 +20,20 @@
         HBAppearanceSettings *appearanceSettings = [[HBAppearanceSettings alloc] init];
         appearanceSettings.tintColor = [UIColor colorWithRed:0.07 green:0.07 blue:0.07 alpha:1.0];
         appearanceSettings.navigationBarTintColor = [UIColor whiteColor];
-        appearanceSettings.navigationBarTitleColor = [UIColor whiteColor];
         appearanceSettings.navigationBarBackgroundColor = [UIColor colorWithRed:0.07 green:0.07 blue:0.07 alpha:1.0];
         appearanceSettings.statusBarTintColor = [UIColor whiteColor];
         appearanceSettings.translucentNavigationBar = NO;
         appearanceSettings.tableViewCellSeparatorColor = [UIColor clearColor];
 
         self.hb_appearanceSettings = appearanceSettings;
+
+        // Navbar icon
+        self.titleView = [[NRENavigationTitleView alloc] initWithFrame:CGRectZero];
+        self.titleView.icon = [UIImage imageNamed:@"icon" inBundle:self.bundle];
+        self.titleView.title = @"Noire";
+        self.titleView.subtitle = @"Version: 0.1.1";
+        self.titleView.showingIcon = YES;
+        self.navigationItem.titleView = self.titleView;
     }
 
     return self;
@@ -57,23 +64,17 @@
 
     // Get rid of shadow
     self.realNavigationController.navigationBar.shadowImage = [[UIImage alloc] init];
-
-    // Since cephei broke
-    self.realNavigationController.navigationBar.titleTextAttributes = @{NSForegroundColorAttributeName: [UIColor whiteColor]};
-}
-
-- (void)viewWillDisappear:(BOOL)animated {
-    [super viewWillDisappear:animated];
-
-    // Reset color
-    self.realNavigationController.navigationBar.titleTextAttributes = @{NSForegroundColorAttributeName: [UIColor blackColor]};
 }
 
 #pragma mark - UIScrollViewDelegate
 
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView {
-    // Update image offset
     CGFloat offsetY = scrollView.contentOffset.y;
+
+    // Update navbar stuffs
+    self.titleView.showingIcon = offsetY < 140.0;
+
+    // Update image offset
     if (offsetY > 0) {
         offsetY = 0;
     }
