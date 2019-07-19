@@ -893,6 +893,37 @@
     }
 }
 
+// Animation fixes
+- (void)setFloatyFolderCrossfadeFraction:(CGFloat)alpha {
+    %orig;
+
+    if (!self.overlayView) {
+        return;
+    }
+
+    self.overlayView.alpha = 1.0 - alpha;
+}
+
+- (void)cleanupAfterFloatyFolderCrossfade {
+    %orig;
+
+    if (!self.overlayView) {
+        return;
+    }
+
+    self.overlayView.alpha = 0.0;
+}
+
+- (void)setBackgroundAndIconGridImageAlpha:(CGFloat)alpha {
+    %orig;
+
+    if (!self.overlayView) {
+        return;
+    }
+
+    self.overlayView.alpha = alpha;
+}
+
 %new 
 - (void)settings:(NRESettings *)settings changedValueForKeyPath:(NSString *)keyPath {
     if (![keyPath isEqualToString:@"enabled"] && ![keyPath isEqualToString:@"folders"]) {
