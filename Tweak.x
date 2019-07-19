@@ -59,9 +59,15 @@
 
 // Its really that easy apparently
 - (BOOL)prefersDarkAppearance {
+    BOOL orig = %orig;
+    if ([self isKindOfClass:%c(NCMutableNotificationOptions)]) {
+        // Only hook base class in order to not mess up original options
+        return orig;
+    }
+
     NRESettings *settings = NRESettings.sharedSettings;
     BOOL enabled = settings.enabled && settings.notifications;
-    return enabled || %orig;
+    return enabled || orig;
 }
 
 %end
