@@ -294,6 +294,57 @@
 
 %end
 
+%hook NCPreviewInteractionPresentedControl
+// 3D Touch clear all notifs
+- (instancetype)initWithTitle:(NSString *)title materialRecipe:(MTMaterialRecipe)materialRecipe backgroundMaterialOptions:(MTMaterialOptions)backgroundMaterialOptions overlayMaterialOptions:(MTMaterialOptions)overlayMaterialOptions {
+    // Since we already modify the close button, the base options should be passed so we dont need to override on init
+    self = %orig;
+    if (self) {
+        // Register observer
+        NRESettings *settings = NRESettings.sharedSettings;
+        [settings addObserver:self];
+    }
+
+    return self;
+}
+
+- (void)dealloc {
+    // Unregister observer
+    NRESettings *settings = NRESettings.sharedSettings;
+    [settings removeObserver:self];
+
+    %orig;
+}
+
+%new
+- (void)settings:(NRESettings *)settings changedValueForKeyPath:(NSString *)keyPath {
+    if (![keyPath isEqualToString:@"enabled"] && ![keyPath isEqualToString:@"notifications"]) {
+        return;
+    }
+
+    BOOL enabled = settings.enabled && settings.notifications;
+    MTMaterialRecipe recipe = enabled ? MTMaterialRecipeNotificationsDark : MTMaterialRecipeNotifications;
+    MTMaterialOptions overlayMaterialOptions = enabled ? MTMaterialOptionsBaseOverlay : MTMaterialOptionsPrimaryOverlay;
+
+    // Update ivars with values
+    [self setValue:@(recipe) forKey:@"_materialRecipe"];
+    [self setValue:@(overlayMaterialOptions) forKey:@"_overlayMaterialOptions"];
+
+    // Set views to nil
+    [self.backgroundMaterialView removeFromSuperview];
+    [self.overlayMaterialView removeFromSuperview];
+    [self setValue:nil forKey:@"_backgroundMaterialView"];
+    [self setValue:nil forKey:@"_overlayMaterialView"];
+
+    // Recreate views
+    [self _configureMaterialViewsIfNecessary];
+
+    // Restyle label
+    self.contentView.vibrantStylingProvider = self.backgroundMaterialView.vibrantStylingProvider;
+}
+
+%end
+
 #pragma mark - Widgets
 
 %hook WGWidgetPlatterView

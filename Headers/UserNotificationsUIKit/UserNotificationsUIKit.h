@@ -2,4 +2,6 @@
 #import "NCNotificationLongLookView+Private.h"
 #import "NCNotificationOptions.h"
 #import "NCNotificationViewControllerView.h"
+#import "NCPreviewInteractionPresentedContentView.h"
+#import "NCPreviewInteractionPresentedControl.h"
 #import "NCToggleControl.h"
