@@ -1,8 +1,8 @@
 @class MTMaterialView;
 
 @interface PLGlyphControl : UIControl <NRESettingsObserver>
-@property (getter=_backgroundMaterialView, readonly, nonatomic) MTMaterialView *backgroundMaterialView; 
-@property (getter=_overlayMaterialView, readonly, nonatomic) MTMaterialView *overlayMaterialView;
+@property (getter=_backgroundMaterialView, strong, nonatomic) MTMaterialView *backgroundMaterialView; 
+@property (getter=_overlayMaterialView, strong, nonatomic) MTMaterialView *overlayMaterialView;
 @property (copy, nonatomic) NSString *groupName; 
 @property (readonly, nonatomic) MTMaterialRecipe materialRecipe;
 @property (readonly, nonatomic) MTMaterialOptions backgroundMaterialOptions;
@@ -10,6 +10,7 @@
 
 - (instancetype)initWithMaterialRecipe:(MTMaterialRecipe)recipe backgroundMaterialOptions:(MTMaterialOptions)backgroundMaterialOptions overlayMaterialOptions:(MTMaterialOptions)overlayMaterialOptions;
 
+- (void)_updateGlyphViewVibrantStyling;
 - (void)_configureMaterialView:(MTMaterialView **)materialView ifNecessaryWithOptions:(MTMaterialOptions)options positioningAtIndex:(NSUInteger)index;
 - (CGFloat)_cornerRadius;
 

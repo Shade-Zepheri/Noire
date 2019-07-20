@@ -276,6 +276,19 @@
     [self setValue:@(recipe) forKey:@"_materialRecipe"];
     [self setValue:@(overlayMaterialOptions) forKey:@"_overlayMaterialOptions"];
 
+    // Set views to nil
+    [self.backgroundMaterialView removeFromSuperview];
+    [self.overlayMaterialView removeFromSuperview];
+    [self setBackgroundMaterialView:nil];
+    [self setOverlayMaterialView:nil];
+
+    // Update glyph styling
+    [self _updateGlyphViewVibrantStyling];
+    if ([self isKindOfClass:%c(NCToggleControl)]) {
+        // Update title label
+        [(NCToggleControl *)self _updateTitleLabelVibrantStyling];
+    }
+
     [self setNeedsLayout];
 }
 
