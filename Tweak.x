@@ -598,24 +598,30 @@
     // Theme labels
     for (SBUIActionView *actionView in [self actionViews]) {
         // Theme icon
-        UIImageView *imageView = [actionView valueForKey:@"_imageView"];
-        imageView.hidden = YES;
         UIImageView *legibilityImageView = [actionView valueForKey:@"_legibilityTreatedImageView"];
-        legibilityImageView.opaque = YES;
         legibilityImageView.tintColor = [UIColor whiteColor];
 
+        UIImageView *imageView = [actionView valueForKey:@"_imageView"];
+        MTVibrantStyling *styling = [backgroundView.vibrantStylingProvider vibrantStylingWithStyle:1];
+        [imageView mt_removeAllVibrantStyling];
+        [imageView mt_applyVibrantStyling:styling];
+
         // Get each action and theme label
-        SBUIActionViewLabel *titleLabel = [actionView valueForKey:@"_titleLabel"];
-        titleLabel.hidden = YES;
         SBUIActionViewLabel *legibilityTitleLabel = [actionView valueForKey:@"_legibilityTreatedTitleLabel"];
         legibilityTitleLabel.textColor = [UIColor whiteColor];
+
+        SBUIActionViewLabel *titleLabel = [actionView valueForKey:@"_titleLabel"];
+        [titleLabel mt_removeAllVibrantStyling];
+        [titleLabel mt_applyVibrantStyling:styling];
 
         SBUIActionViewLabel *subtitleLabel = [actionView valueForKey:@"_subtitleLabel"];
         if (subtitleLabel) {
             // Theme subtitle
-            subtitleLabel.hidden = YES;
             SBUIActionViewLabel *legibilitySubtitleLabel = [actionView valueForKey:@"_legibilityTreatedSubtitleLabel"];
             legibilitySubtitleLabel.textColor = [UIColor whiteColor];
+
+            [subtitleLabel mt_removeAllVibrantStyling];
+            [subtitleLabel mt_applyVibrantStyling:styling];
         }
     }
 }
@@ -663,72 +669,58 @@
     }
 
     BOOL enabled = settings.enabled && settings.forceTouch;
-    MTMaterialView *backgroundView = [self backgroundMaterialView];
-    if (!enabled) {
-        if (self.overlayView) {
+    if (!enabled && self.overlayView) {
+        // Remove overlay
             [self.overlayView removeFromSuperview];
             self.overlayView = nil;
         }
 
-        [backgroundView transitionToRecipe:MTMaterialRecipeWidgetHosts options:MTMaterialOptionsBlur | MTMaterialOptionsBaseOverlay weighting:backgroundView.weighting];
-
-        for (SBUIActionView *actionView in [self actionViews]) {
-            // Theme icon
-            UIImageView *imageView = [actionView valueForKey:@"_imageView"];
-            imageView.hidden = NO;
-            UIImageView *legibilityImageView = [actionView valueForKey:@"_legibilityTreatedImageView"];
-            legibilityImageView.opaque = NO;
-            legibilityImageView.tintColor = [UIColor blackColor];
-
-            // Get each action and theme label
-            SBUIActionViewLabel *titleLabel = [actionView valueForKey:@"_titleLabel"];
-            titleLabel.hidden = NO;
-            SBUIActionViewLabel *legibilityTitleLabel = [actionView valueForKey:@"_legibilityTreatedTitleLabel"];
-            legibilityTitleLabel.textColor = [UIColor blackColor];
-
-            SBUIActionViewLabel *subtitleLabel = [actionView valueForKey:@"_subtitleLabel"];
-            if (subtitleLabel) {
-                // Theme subtitle
-                subtitleLabel.hidden = NO;
-                SBUIActionViewLabel *legibilitySubtitleLabel = [actionView valueForKey:@"_legibilityTreatedSubtitleLabel"];
-                legibilitySubtitleLabel.textColor = [UIColor blackColor];
-            }
-        }
-
-        [self.view setNeedsLayout];
-        return;
-    }
+    MTMaterialView *backgroundView = [self backgroundMaterialView];
+    MTMaterialRecipe recipe = enabled ? MTMaterialRecipeNotificationsDark : MTMaterialRecipeWidgetHosts;
+    MTMaterialOptions options = enabled ? MTMaterialOptionsBlur : MTMaterialOptionsBlur | MTMaterialOptionsBaseOverlay;
 
     // Apply theme
-    [backgroundView transitionToRecipe:MTMaterialRecipeNotificationsDark options:MTMaterialOptionsBlur weighting:backgroundView.weighting];
+    [backgroundView transitionToRecipe:recipe options:options weighting:backgroundView.weighting];
 
+    if (enabled) {
+        // Create overlay
     self.overlayView = [%c(MTMaterialView) materialViewWithRecipe:MTMaterialRecipeNotificationsDark options:MTMaterialOptionsBaseOverlay];
     self.overlayView.frame = backgroundView.bounds;
     self.overlayView.groupName = backgroundView.groupName;
     [backgroundView.superview insertSubview:self.overlayView aboveSubview:backgroundView];
+    }
 
+    // Theme labels
     for (SBUIActionView *actionView in [self actionViews]) {
         // Theme icon
-        UIImageView *imageView = [actionView valueForKey:@"_imageView"];
-        imageView.hidden = YES;
         UIImageView *legibilityImageView = [actionView valueForKey:@"_legibilityTreatedImageView"];
-        legibilityImageView.opaque = YES;
-        legibilityImageView.tintColor = [UIColor whiteColor];
+        legibilityImageView.tintColor = enabled ? [UIColor whiteColor] : [UIColor blackColor];
+
+        UIImageView *imageView = [actionView valueForKey:@"_imageView"];
+        MTVibrantStyling *styling = [backgroundView.vibrantStylingProvider vibrantStylingWithStyle:1];
+        [imageView mt_removeAllVibrantStyling];
+        [imageView mt_applyVibrantStyling:styling];
 
         // Get each action and theme label
-        SBUIActionViewLabel *titleLabel = [actionView valueForKey:@"_titleLabel"];
-        titleLabel.hidden = YES;
         SBUIActionViewLabel *legibilityTitleLabel = [actionView valueForKey:@"_legibilityTreatedTitleLabel"];
-        legibilityTitleLabel.textColor = [UIColor whiteColor];
+        legibilityTitleLabel.textColor = enabled ? [UIColor whiteColor] : [UIColor blackColor];
+
+        SBUIActionViewLabel *titleLabel = [actionView valueForKey:@"_titleLabel"];
+        [titleLabel mt_removeAllVibrantStyling];
+        [titleLabel mt_applyVibrantStyling:styling];
 
         SBUIActionViewLabel *subtitleLabel = [actionView valueForKey:@"_subtitleLabel"];
         if (subtitleLabel) {
             // Theme subtitle
-            subtitleLabel.hidden = YES;
             SBUIActionViewLabel *legibilitySubtitleLabel = [actionView valueForKey:@"_legibilityTreatedSubtitleLabel"];
-            legibilitySubtitleLabel.textColor = [UIColor whiteColor];
+            legibilitySubtitleLabel.textColor = enabled ? [UIColor whiteColor] : [UIColor blackColor];
+
+            [subtitleLabel mt_removeAllVibrantStyling];
+            [subtitleLabel mt_applyVibrantStyling:styling];
         }
     }
+
+    [self.view setNeedsLayout];
 }
 
 %end
