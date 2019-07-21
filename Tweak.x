@@ -598,30 +598,38 @@
     // Theme labels
     for (SBUIActionView *actionView in [self actionViews]) {
         // Theme icon
-        UIImageView *legibilityImageView = [actionView valueForKey:@"_legibilityTreatedImageView"];
-        legibilityImageView.tintColor = [UIColor whiteColor];
-
         UIImageView *imageView = [actionView valueForKey:@"_imageView"];
         MTVibrantStyling *styling = [backgroundView.vibrantStylingProvider vibrantStylingWithStyle:1];
         [imageView mt_removeAllVibrantStyling];
         [imageView mt_applyVibrantStyling:styling];
 
-        // Get each action and theme label
-        SBUIActionViewLabel *legibilityTitleLabel = [actionView valueForKey:@"_legibilityTreatedTitleLabel"];
-        legibilityTitleLabel.textColor = [UIColor whiteColor];
+        UIImageView *legibilityImageView = [actionView valueForKey:@"_legibilityTreatedImageView"];
+        if (legibilityImageView) {
+            legibilityImageView.tintColor = [UIColor whiteColor];
+        }
 
+        // Get each action and theme label
         SBUIActionViewLabel *titleLabel = [actionView valueForKey:@"_titleLabel"];
         [titleLabel mt_removeAllVibrantStyling];
         [titleLabel mt_applyVibrantStyling:styling];
 
-        SBUIActionViewLabel *subtitleLabel = [actionView valueForKey:@"_subtitleLabel"];
-        if (subtitleLabel) {
-            // Theme subtitle
-            SBUIActionViewLabel *legibilitySubtitleLabel = [actionView valueForKey:@"_legibilityTreatedSubtitleLabel"];
-            legibilitySubtitleLabel.textColor = [UIColor whiteColor];
+        SBUIActionViewLabel *legibilityTitleLabel = [actionView valueForKey:@"_legibilityTreatedTitleLabel"];
+        if (legibilityTitleLabel) {
+            legibilityTitleLabel.textColor = [UIColor whiteColor];
+        }
 
-            [subtitleLabel mt_removeAllVibrantStyling];
-            [subtitleLabel mt_applyVibrantStyling:styling];
+        SBUIActionViewLabel *subtitleLabel = [actionView valueForKey:@"_subtitleLabel"];
+        if (!subtitleLabel) {
+            continue;
+        }
+
+            // Theme subtitle
+        [subtitleLabel mt_removeAllVibrantStyling];
+        [subtitleLabel mt_applyVibrantStyling:styling];
+
+            SBUIActionViewLabel *legibilitySubtitleLabel = [actionView valueForKey:@"_legibilityTreatedSubtitleLabel"];
+        if (legibilitySubtitleLabel) {
+            legibilitySubtitleLabel.textColor = [UIColor whiteColor];
         }
     }
 }
@@ -693,30 +701,38 @@
     // Theme labels
     for (SBUIActionView *actionView in [self actionViews]) {
         // Theme icon
-        UIImageView *legibilityImageView = [actionView valueForKey:@"_legibilityTreatedImageView"];
-        legibilityImageView.tintColor = enabled ? [UIColor whiteColor] : [UIColor blackColor];
-
         UIImageView *imageView = [actionView valueForKey:@"_imageView"];
         MTVibrantStyling *styling = [backgroundView.vibrantStylingProvider vibrantStylingWithStyle:1];
         [imageView mt_removeAllVibrantStyling];
         [imageView mt_applyVibrantStyling:styling];
 
-        // Get each action and theme label
-        SBUIActionViewLabel *legibilityTitleLabel = [actionView valueForKey:@"_legibilityTreatedTitleLabel"];
-        legibilityTitleLabel.textColor = enabled ? [UIColor whiteColor] : [UIColor blackColor];
+        UIImageView *legibilityImageView = [actionView valueForKey:@"_legibilityTreatedImageView"];
+        if (legibilityImageView) {
+            legibilityImageView.tintColor = enabled ? [UIColor whiteColor] : [UIColor blackColor];
+        }
 
+        // Get each action and theme label
         SBUIActionViewLabel *titleLabel = [actionView valueForKey:@"_titleLabel"];
         [titleLabel mt_removeAllVibrantStyling];
         [titleLabel mt_applyVibrantStyling:styling];
 
-        SBUIActionViewLabel *subtitleLabel = [actionView valueForKey:@"_subtitleLabel"];
-        if (subtitleLabel) {
-            // Theme subtitle
-            SBUIActionViewLabel *legibilitySubtitleLabel = [actionView valueForKey:@"_legibilityTreatedSubtitleLabel"];
-            legibilitySubtitleLabel.textColor = enabled ? [UIColor whiteColor] : [UIColor blackColor];
+        SBUIActionViewLabel *legibilityTitleLabel = [actionView valueForKey:@"_legibilityTreatedTitleLabel"];
+        if (legibilityTitleLabel) {
+            legibilityTitleLabel.textColor = enabled ? [UIColor whiteColor] : [UIColor blackColor];
+        }
 
-            [subtitleLabel mt_removeAllVibrantStyling];
-            [subtitleLabel mt_applyVibrantStyling:styling];
+        SBUIActionViewLabel *subtitleLabel = [actionView valueForKey:@"_subtitleLabel"];
+        if (!subtitleLabel) {
+            continue;
+        }
+
+            // Theme subtitle
+        [subtitleLabel mt_removeAllVibrantStyling];
+        [subtitleLabel mt_applyVibrantStyling:styling];
+
+            SBUIActionViewLabel *legibilitySubtitleLabel = [actionView valueForKey:@"_legibilityTreatedSubtitleLabel"];
+        if (legibilitySubtitleLabel) {
+            legibilitySubtitleLabel.textColor = enabled ? [UIColor whiteColor] : [UIColor blackColor];
         }
     }
 
