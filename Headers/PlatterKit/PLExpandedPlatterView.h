@@ -5,4 +5,6 @@
     PLInterfaceActionGroupView *_actionsView;
 }
 
+@property (getter=_headerContentView, readonly, nonatomic) UIView *headerContentView;
+
 @end

@@ -184,6 +184,20 @@
     [backgroundView.superview insertSubview:self.overlayView aboveSubview:backgroundView];
 }
 
+- (void)_configureHeaderContentViewIfNecessary {
+    %orig;
+
+    // Check if enabled
+    NRESettings *settings = NRESettings.sharedSettings;
+    BOOL enabled = settings.enabled && settings.notifications;
+    if (!enabled) {
+        return;
+    }
+
+    // Update color
+    self.headerContentView.backgroundColor = [UIColor blackColor];
+}
+
 - (void)_layoutActionsView {
     %orig;
 
@@ -204,26 +218,29 @@
     }
 
     BOOL enabled = settings.enabled && settings.notifications;
-    MTMaterialView *backgroundView = [self valueForKey:@"_actionsBackgroundView"];
-    if (!enabled) {
-        if (self.overlayView) {
+    if (!enabled && self.overlayView) {
             [self.overlayView removeFromSuperview];
             self.overlayView = nil;
         }
 
-        [backgroundView transitionToRecipe:MTMaterialRecipeWidgetHosts options:MTMaterialOptionsBlur | MTMaterialOptionsBaseOverlay weighting:backgroundView.weighting];
-
-        [self setNeedsLayout];
-        return;
-    }
-
     // Apply theming
-    [backgroundView transitionToRecipe:MTMaterialRecipeNotificationsDark options:MTMaterialOptionsBlur weighting:backgroundView.weighting];
+    MTMaterialView *backgroundView = [self valueForKey:@"_actionsBackgroundView"];
+    MTMaterialRecipe recipe = enabled ? MTMaterialRecipeNotificationsDark : MTMaterialRecipeWidgetHosts;
+    MTMaterialOptions options = enabled ? MTMaterialOptionsBlur : MTMaterialOptionsBlur | MTMaterialOptionsBaseOverlay;
 
+    [backgroundView transitionToRecipe:recipe options:options weighting:backgroundView.weighting];
+
+    if (enabled) {
     self.overlayView = [%c(MTMaterialView) materialViewWithRecipe:MTMaterialRecipeNotificationsDark options:MTMaterialOptionsBaseOverlay];
     self.overlayView.groupName = backgroundView.groupName;
     [self.overlayView _setContinuousCornerRadius:[backgroundView _continuousCornerRadius]];
     [backgroundView.superview insertSubview:self.overlayView aboveSubview:backgroundView];
+}
+
+    // Theme header
+    self.headerContentView.backgroundColor = enabled ? [UIColor blackColor] : [UIColor whiteColor];
+
+    [self setNeedsLayout];
 }
 
 %end
