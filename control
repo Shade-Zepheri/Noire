@@ -1,7 +1,7 @@
 Package: com.shade.noire
 Name: Noire
 Depends: mobilesubstrate, preferenceloader, ws.hbang.common
-Version: 0.3
+Version: 0.3.1
 Architecture: iphoneos-arm
 Description: Free iOS 12 Night Mode
 Icon: file:///Library/PreferenceBundles/Noire.bundle/icon@2x.png
