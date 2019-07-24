@@ -113,46 +113,7 @@
 }
 
 %end
-/*
-%hook NCNotificationListCollectionView
-// Hook in order to refresh the cells
 
-- (instancetype)init {
-    self = %orig;
-    if (self) {
-        // Register observer
-        NRESettings *settings = NRESettings.sharedSettings;
-        [settings addObserver:self];
-    }
-
-    return self;
-}
-
-- (void)dealloc {
-    // Unregister observer
-    NRESettings *settings = NRESettings.sharedSettings;
-    [settings removeObserver:self];
-
-    %orig;
-}
-
-%new
-- (void)settings:(NRESettings *)settings changedValueForKeyPath:(NSString *)keyPath {
-    if (![keyPath isEqualToString:@"enabled"] && ![keyPath isEqualToString:@"notifications"]) {
-        return;
-    }
-
-    HBLogWarn(@"Updating");
-
-    // Force reload cells
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 5.0 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
-        HBLogWarn(@"Reloading");
-        [self reloadData];
-    });
-}
-
-%end
-*/
 %hook NCNotificationViewControllerView
 
 - (instancetype)initWithFrame:(CGRect)frame {
@@ -279,33 +240,6 @@
     self.headerContentView.backgroundColor = [UIColor blackColor];
 }
 
-/*
-- (void)_configureActionViewIfNecessaryWithActions:(NSArray *)actions {
-    %orig;
-
-    // Check if enabled
-    NRESettings *settings = NRESettings.sharedSettings;
-    BOOL enabled = settings.enabled && settings.notifications;
-    if (!enabled) {
-        return;
-    }
-
-    // Theme labels
-    PLInterfaceActionGroupView *actionsView = [self valueForKey:@"_actionsView"];
-    UIInterfaceActionGroupView *actionsGroupView = [actionsView valueForKey:@"_actionsGroupView"];
-    _UIInterfaceActionRepresentationsSequenceView *actionSequenceView = actionsGroupView.actionSequenceView;
-    for (_UIInterfaceActionSystemRepresentationView *representationView in actionSequenceView.arrangedActionRepresentationViews) {
-        // Theme each label
-        _UIInterfaceActionLabelsPropertyView *labelsView = representationView.labelsView;
-        UILabel *label = [labelsView valueForKey:@"_titleLabel"];
-        MTVibrantStyling *styling = [self.overlayView.vibrantStylingProvider vibrantStylingWithStyle:1];
-
-        [label mt_removeAllVibrantStyling];
-        [label mt_applyVibrantStyling:styling];
-    }
-}
-*/
-
 - (void)_layoutActionsView {
     %orig;
 
@@ -384,7 +318,6 @@
     // Fix corner radius
     MTMaterialView *backgroundMaterialView = self.backgroundMaterialView;
     backgroundMaterialView.clipsToBounds = YES;
-    // [backgroundMaterialView _setContinuousCornerRadius:[self _cornerRadius]];
     backgroundMaterialView.layer.cornerRadius = [self _cornerRadius];
 }
 
@@ -1168,28 +1101,3 @@
 }
 
 %end
-
-#pragma mark - Keyboard
-/*
-%hook UIKBRenderConfig
-/*
-- (void)setLightKeyboard:(BOOL)light {
-    if (enabled && keyboard) {
-    %orig(NO);
-    } else {
-    %orig;
-    }
-
-    BOOL enabled = settings.enabled && settings.folders;
-    %orig;
-}
-
-- (BOOL)lightKeyboard {
-    NRESettings *settings = NRESettings.sharedSettings;
-    BOOL enabled = settings.enabled;
-    BOOL orig = %orig;
-    return !enabled && orig;
-}
-
-%end
-*/
