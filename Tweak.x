@@ -53,6 +53,48 @@
 
 %end
 
+%hook SBFloatingDockPlatterView
+
+- (instancetype)initWithReferenceHeight:(CGFloat)height maximumContinuousCornerRadius:(CGFloat)cornerRadius {
+    self = %orig;
+    if (self) {
+        // Register observer
+        NRESettings *settings = NRESettings.sharedSettings;
+        [settings addObserver:self];
+
+        // Apply theme
+        BOOL enabled = settings.enabled && settings.dock;
+        NSInteger style = enabled ? 2030 : 2020;
+        _UIBackdropView *backgroundView = self.backgroundView;
+        [backgroundView transitionToStyle:style];
+    }
+
+    return self;
+}
+
+- (void)dealloc {
+    // Unregister observer
+    NRESettings *settings = NRESettings.sharedSettings;
+    [settings removeObserver:self];
+
+    %orig;
+}
+
+%new
+- (void)settings:(NRESettings *)settings changedValueForKeyPath:(NSString *)keyPath {
+    if (![keyPath isEqualToString:@"enabled"] && ![keyPath isEqualToString:@"dock"]) {
+        return;
+    }
+
+    // Apply theming
+    BOOL enabled = settings.enabled && settings.dock;
+    NSInteger style = enabled ? 2030 : 2020;
+    _UIBackdropView *backgroundView = self.backgroundView;
+    [backgroundView transitionToStyle:style];
+}
+
+%end
+
 #pragma mark - Notifications
 
 %hook NCNotificationOptions
@@ -71,7 +113,46 @@
 }
 
 %end
+/*
+%hook NCNotificationListCollectionView
+// Hook in order to refresh the cells
 
+- (instancetype)init {
+    self = %orig;
+    if (self) {
+        // Register observer
+        NRESettings *settings = NRESettings.sharedSettings;
+        [settings addObserver:self];
+    }
+
+    return self;
+}
+
+- (void)dealloc {
+    // Unregister observer
+    NRESettings *settings = NRESettings.sharedSettings;
+    [settings removeObserver:self];
+
+    %orig;
+}
+
+%new
+- (void)settings:(NRESettings *)settings changedValueForKeyPath:(NSString *)keyPath {
+    if (![keyPath isEqualToString:@"enabled"] && ![keyPath isEqualToString:@"notifications"]) {
+        return;
+    }
+
+    HBLogWarn(@"Updating");
+
+    // Force reload cells
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 5.0 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+        HBLogWarn(@"Reloading");
+        [self reloadData];
+    });
+}
+
+%end
+*/
 %hook NCNotificationViewControllerView
 
 - (instancetype)initWithFrame:(CGRect)frame {
@@ -198,6 +279,33 @@
     self.headerContentView.backgroundColor = [UIColor blackColor];
 }
 
+/*
+- (void)_configureActionViewIfNecessaryWithActions:(NSArray *)actions {
+    %orig;
+
+    // Check if enabled
+    NRESettings *settings = NRESettings.sharedSettings;
+    BOOL enabled = settings.enabled && settings.notifications;
+    if (!enabled) {
+        return;
+    }
+
+    // Theme labels
+    PLInterfaceActionGroupView *actionsView = [self valueForKey:@"_actionsView"];
+    UIInterfaceActionGroupView *actionsGroupView = [actionsView valueForKey:@"_actionsGroupView"];
+    _UIInterfaceActionRepresentationsSequenceView *actionSequenceView = actionsGroupView.actionSequenceView;
+    for (_UIInterfaceActionSystemRepresentationView *representationView in actionSequenceView.arrangedActionRepresentationViews) {
+        // Theme each label
+        _UIInterfaceActionLabelsPropertyView *labelsView = representationView.labelsView;
+        UILabel *label = [labelsView valueForKey:@"_titleLabel"];
+        MTVibrantStyling *styling = [self.overlayView.vibrantStylingProvider vibrantStylingWithStyle:1];
+
+        [label mt_removeAllVibrantStyling];
+        [label mt_applyVibrantStyling:styling];
+    }
+}
+*/
+
 - (void)_layoutActionsView {
     %orig;
 
@@ -219,9 +327,9 @@
 
     BOOL enabled = settings.enabled && settings.notifications;
     if (!enabled && self.overlayView) {
-            [self.overlayView removeFromSuperview];
-            self.overlayView = nil;
-        }
+        [self.overlayView removeFromSuperview];
+        self.overlayView = nil;
+    }
 
     // Apply theming
     MTMaterialView *backgroundView = [self valueForKey:@"_actionsBackgroundView"];
@@ -231,11 +339,11 @@
     [backgroundView transitionToRecipe:recipe options:options weighting:backgroundView.weighting];
 
     if (enabled) {
-    self.overlayView = [%c(MTMaterialView) materialViewWithRecipe:MTMaterialRecipeNotificationsDark options:MTMaterialOptionsBaseOverlay];
-    self.overlayView.groupName = backgroundView.groupName;
-    [self.overlayView _setContinuousCornerRadius:[backgroundView _continuousCornerRadius]];
-    [backgroundView.superview insertSubview:self.overlayView aboveSubview:backgroundView];
-}
+        self.overlayView = [%c(MTMaterialView) materialViewWithRecipe:MTMaterialRecipeNotificationsDark options:MTMaterialOptionsBaseOverlay];
+        self.overlayView.groupName = backgroundView.groupName;
+        [self.overlayView _setContinuousCornerRadius:[backgroundView _continuousCornerRadius]];
+        [backgroundView.superview insertSubview:self.overlayView aboveSubview:backgroundView];
+    }
 
     // Theme header
     self.headerContentView.backgroundColor = enabled ? [UIColor blackColor] : [UIColor whiteColor];
@@ -276,6 +384,7 @@
     // Fix corner radius
     MTMaterialView *backgroundMaterialView = self.backgroundMaterialView;
     backgroundMaterialView.clipsToBounds = YES;
+    // [backgroundMaterialView _setContinuousCornerRadius:[self _cornerRadius]];
     backgroundMaterialView.layer.cornerRadius = [self _cornerRadius];
 }
 
@@ -644,11 +753,11 @@
             continue;
         }
 
-            // Theme subtitle
+        // Theme subtitle
         [subtitleLabel mt_removeAllVibrantStyling];
         [subtitleLabel mt_applyVibrantStyling:styling];
 
-            SBUIActionViewLabel *legibilitySubtitleLabel = [actionView valueForKey:@"_legibilityTreatedSubtitleLabel"];
+        SBUIActionViewLabel *legibilitySubtitleLabel = [actionView valueForKey:@"_legibilityTreatedSubtitleLabel"];
         if (legibilitySubtitleLabel) {
             legibilitySubtitleLabel.textColor = [UIColor whiteColor];
         }
@@ -704,9 +813,9 @@
     BOOL enabled = settings.enabled && settings.forceTouch;
     if (!enabled && self.overlayView) {
         // Remove overlay
-            [self.overlayView removeFromSuperview];
-            self.overlayView = nil;
-        }
+        [self.overlayView removeFromSuperview];
+        self.overlayView = nil;
+    }
 
     MTMaterialView *backgroundView = [self backgroundMaterialView];
     MTMaterialRecipe recipe = enabled ? MTMaterialRecipeNotificationsDark : MTMaterialRecipeWidgetHosts;
@@ -717,10 +826,10 @@
 
     if (enabled) {
         // Create overlay
-    self.overlayView = [%c(MTMaterialView) materialViewWithRecipe:MTMaterialRecipeNotificationsDark options:MTMaterialOptionsBaseOverlay];
-    self.overlayView.frame = backgroundView.bounds;
-    self.overlayView.groupName = backgroundView.groupName;
-    [backgroundView.superview insertSubview:self.overlayView aboveSubview:backgroundView];
+        self.overlayView = [%c(MTMaterialView) materialViewWithRecipe:MTMaterialRecipeNotificationsDark options:MTMaterialOptionsBaseOverlay];
+        self.overlayView.frame = backgroundView.bounds;
+        self.overlayView.groupName = backgroundView.groupName;
+        [backgroundView.superview insertSubview:self.overlayView aboveSubview:backgroundView];
     }
 
     // Theme labels
@@ -755,11 +864,11 @@
             continue;
         }
 
-            // Theme subtitle
+        // Theme subtitle
         [subtitleLabel mt_removeAllVibrantStyling];
         [subtitleLabel mt_applyVibrantStyling:styling];
 
-            SBUIActionViewLabel *legibilitySubtitleLabel = [actionView valueForKey:@"_legibilityTreatedSubtitleLabel"];
+        SBUIActionViewLabel *legibilitySubtitleLabel = [actionView valueForKey:@"_legibilityTreatedSubtitleLabel"];
         if (legibilitySubtitleLabel) {
             legibilitySubtitleLabel.textColor = enabled ? [UIColor whiteColor] : [UIColor blackColor];
         }
@@ -1059,3 +1168,28 @@
 }
 
 %end
+
+#pragma mark - Keyboard
+/*
+%hook UIKBRenderConfig
+/*
+- (void)setLightKeyboard:(BOOL)light {
+    if (enabled && keyboard) {
+    %orig(NO);
+    } else {
+    %orig;
+    }
+
+    BOOL enabled = settings.enabled && settings.folders;
+    %orig;
+}
+
+- (BOOL)lightKeyboard {
+    NRESettings *settings = NRESettings.sharedSettings;
+    BOOL enabled = settings.enabled;
+    BOOL orig = %orig;
+    return !enabled && orig;
+}
+
+%end
+*/
