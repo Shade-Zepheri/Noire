@@ -613,6 +613,10 @@
     [backgroundView.superview insertSubview:self.overlayView aboveSubview:backgroundView];
 
     // Theme labels
+    if (![self actionViews]) {
+        return;
+    }
+
     for (SBUIActionView *actionView in [self actionViews]) {
         // Theme icon
         UIImageView *imageView = [actionView valueForKey:@"_imageView"];
@@ -666,6 +670,10 @@
 
 %new
 - (NSArray<SBUIActionView *> *)actionViews {
+    if (![self.childViewController isKindOfClass:%c(SBUIAppIconForceTouchShortcutViewController)]) {
+        return nil;
+    }
+
     SBUIAppIconForceTouchShortcutViewController *shortcutViewController = (SBUIAppIconForceTouchShortcutViewController *)self.childViewController;
     SBUIActionPlatterViewController *actionViewController = [shortcutViewController valueForKey:@"_actionPlatterViewController"];
     UIStackView *stackView = [actionViewController valueForKey:@"_stackView"];
@@ -716,6 +724,10 @@
     }
 
     // Theme labels
+    if (![self actionViews]) {
+        return;
+    }
+
     for (SBUIActionView *actionView in [self actionViews]) {
         // Theme icon
         UIImageView *imageView = [actionView valueForKey:@"_imageView"];
