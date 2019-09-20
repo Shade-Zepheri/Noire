@@ -14,4 +14,6 @@ __BEGIN_DECLS
 CGFloat CCUISliderExpandedContentModuleWidth();
 CGFloat CCUISliderExpandedContentModuleHeight();
 
+BOOL CCUIIsPortrait();
+
 __END_DECLS

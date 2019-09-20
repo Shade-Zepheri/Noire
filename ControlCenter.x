@@ -2,7 +2,6 @@
 #import <Cephei/HBPreferences.h>
 #import <ControlCenterUIKit/ControlCenterUIKit.h>
 #import <MaterialKit/MaterialKit.h>
-#import <HBLog.h>
 
 %group Modules
 // These must be in here in order to not hook too early or late;
@@ -56,27 +55,49 @@
     // Update size
     self.noireButton.view.frame = self.nightShiftButton.view.bounds;
 
-    CGFloat centerY = self.nightShiftButton.view.center.y;
-    CGFloat sliderInset = (CGRectGetHeight(self.view.bounds) - CCUISliderExpandedContentModuleHeight()) / 4.0;
-    CGFloat buttonInset = CGRectGetWidth(self.nightShiftButton.view.bounds) / 2.0;
-    CGFloat width = CGRectGetWidth(self.view.bounds);
-    if (self.trueToneButton) {
-        // Layout for 3 toggles
-        CGFloat desiredInset = sliderInset - buttonInset + 3.0;
+    if (CCUIIsPortrait()) {
+        CGFloat centerY = self.nightShiftButton.view.center.y;
+        CGFloat sliderInset = (CGRectGetHeight(self.view.bounds) - CCUISliderExpandedContentModuleHeight()) / 4.0;
+        CGFloat buttonInset = CGRectGetWidth(self.nightShiftButton.view.bounds) / 2.0;
+        CGFloat width = CGRectGetWidth(self.view.bounds);
+        if (self.trueToneButton) {
+            // Layout for 3 toggles
+            CGFloat desiredInset = sliderInset - buttonInset + 3.0;
 
-        // Put ours on the left side
+            // Put ours on the left side
+            self.noireButton.view.center = CGPointMake(desiredInset, centerY);
+            
+            // Realign truetone and night shift
+            self.nightShiftButton.view.center = CGPointMake(width / 2.0, centerY);
+            self.trueToneButton.view.center = CGPointMake((width - desiredInset), centerY);
+            return;
+        }
+
+        // Layout for 2 toggles
+        CGFloat desiredInset = sliderInset + 3.0;
         self.noireButton.view.center = CGPointMake(desiredInset, centerY);
-        
-        // Realign truetone and night shift
-        self.nightShiftButton.view.center = CGPointMake(width / 2.0, centerY);
-        self.trueToneButton.view.center = CGPointMake((width - desiredInset), centerY);
-        return;
-    }
+        self.nightShiftButton.view.center = CGPointMake((width - desiredInset), centerY);
+    } else {
+        // Landscape
+        CGFloat centerX = self.nightShiftButton.view.center.x;
+        CGFloat centerY = CGRectGetHeight(self.view.bounds) / 2.0;
+        CGFloat buttonInset = CGRectGetHeight(self.nightShiftButton.view.bounds) / 2.0;
 
-    // Layout for 2 toggles
-    CGFloat desiredInset = sliderInset + 3.0;
-    self.noireButton.view.center = CGPointMake(desiredInset, centerY);
-    self.nightShiftButton.view.center = CGPointMake((width - desiredInset), centerY);
+        if (self.trueToneButton) {
+            // Layout for 3
+            self.nightShiftButton.view.center = CGPointMake(centerX, centerY);
+
+            CGFloat sliderInset = (CGRectGetHeight(self.view.bounds) - CCUISliderExpandedContentModuleHeight()) / 2.0;
+
+            self.trueToneButton.view.center = CGPointMake(centerX, sliderInset + buttonInset + 15.0);
+            self.noireButton.view.center = CGPointMake(centerX, CGRectGetHeight(self.view.bounds) - (sliderInset + buttonInset + 15.0));
+            return;
+        }
+
+        // Layout for 2
+        self.noireButton.view.center = CGPointMake(centerX, centerY - (buttonInset + 15.0));
+        self.nightShiftButton.view.center = CGPointMake(centerX, centerY + buttonInset + 15.0);
+    }
 }
 
 %new 

@@ -7,7 +7,6 @@
 #import <UIKit/UIKit+Private.h>
 #import <UserNotificationsUIKit/UserNotificationsUIKit.h>
 #import <Widgets/Widgets.h>
-#import <HBLog.h>
 
 #pragma mark - Dock
 
