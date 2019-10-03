@@ -510,10 +510,12 @@
 - (void)layoutSubviews {
     %orig;
 
-    if (self.overlayView) {
+    if (!self.overlayView) {
+        return;
+    }
+
         self.overlayView.frame = self.bounds;
     }
-}
 
 - (void)_configureBackgroundViewIfNecessary {
     %orig;
@@ -558,10 +560,12 @@
 - (void)_setBackgroundViewCornerRadius:(CGFloat)cornerRadius {
     %orig;
 
-    if (self.overlayView) {
+    if (!self.overlayView) {
+        return;
+    }
+
         [self.overlayView _setCornerRadius:cornerRadius];
     }
-}
 
 %new 
 - (void)settings:(NRESettings *)settings changedValueForKeyPath:(NSString *)keyPath {
@@ -952,11 +956,13 @@
 - (void)layoutSubviews {
     %orig;
 
-    if (self.overlayView) {
+    if (!self.overlayView) {
+        return;
+    }
+
         UIView *tintView = [self valueForKey:@"_tintView"];
         self.overlayView.frame = tintView.bounds;
     }
-}
 
 %new 
 - (void)settings:(NRESettings *)settings changedValueForKeyPath:(NSString *)keyPath {
@@ -1029,11 +1035,13 @@
 - (void)layoutSubviews {
     %orig;
 
-    if (self.overlayView) {
+    if (!self.overlayView) {
+        return;
+    }
+
         UIView *backgroundView = [self valueForKey:@"_backgroundView"];
         self.overlayView.frame = backgroundView.bounds;
     }
-}
 
 // Animation fixes
 - (void)setFloatyFolderCrossfadeFraction:(CGFloat)alpha {
