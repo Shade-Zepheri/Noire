@@ -426,7 +426,7 @@
     %orig;
 }
 
-- (void)layoutSubviews {
+- (void)_configureMainOverlayViewIfNecessary {
     %orig;
     
     NRESettings *settings = NRESettings.sharedSettings;
