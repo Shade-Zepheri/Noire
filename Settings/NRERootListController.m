@@ -24,8 +24,15 @@
         appearanceSettings.statusBarTintColor = [UIColor whiteColor];
         appearanceSettings.translucentNavigationBar = NO;
         appearanceSettings.tableViewCellSeparatorColor = [UIColor clearColor];
+        appearanceSettings.largeTitleStyle = HBAppearanceSettingsLargeTitleStyleNever;
 
         self.hb_appearanceSettings = appearanceSettings;
+
+        // Disable large title
+        if (@available(iOS 11, *)) {
+            // iOS 11 only
+            self.navigationItem.largeTitleDisplayMode = UINavigationItemLargeTitleDisplayModeNever;
+        }
 
         // Navbar icon
         self.titleView = [[NRENavigationTitleView alloc] initWithFrame:CGRectZero];
