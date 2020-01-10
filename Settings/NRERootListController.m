@@ -38,7 +38,7 @@
         self.titleView = [[NRENavigationTitleView alloc] initWithFrame:CGRectZero];
         self.titleView.icon = [UIImage imageNamed:@"icon" inBundle:self.bundle];
         self.titleView.title = @"Noire";
-        self.titleView.subtitle = @"Version: 0.3.2";
+        self.titleView.subtitle = @"Version: 0.3.3";
         self.titleView.showingIcon = YES;
         self.navigationItem.titleView = self.titleView;
     }
